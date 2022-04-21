@@ -2,6 +2,8 @@
 
 ### [📖 김정환님 블로그](https://jeonghwan-kim.github.io/series/2019/12/09/frontend-dev-env-npm.html)
 
+### [📖 강의에서 사용된 패키지 정보](https://github.com/jeonghwan-kim/lecture-frontend-dev-env/blob/master/package.json)
+
 <br />
 
 ## ✅ 목차

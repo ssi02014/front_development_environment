@@ -15,6 +15,14 @@
 11. [자주 사용하는 로더 - (file-loader[이제 안씀])](#file-loader)
 12. [자주 사용하는 로더 - (url-loader[이제 안씀])](#url-loader)
 13. [자주 사용하는 로더 - (asset-modules)](#asset-modules)
+14. [플러그인의 역할](#플러그인의-역할)
+15. [커스텀 플러그인 만들기](#커스텀-플러그인-만들기)
+
+<br />
+
+### 🤓 참고
+
+(아래 문서에 나오는 모든 예제들은 sample 폴더 참고)
 
 <br />
 
@@ -320,7 +328,8 @@ module.exports = {
 
 ### file loader
 
-<h3 style="color:red">(주의) webpack v5 이후부터 사용하지 않음! 하단의 asset/module로 대체</h3>
+<h5 style="color:red">(주의) webpack v5 이후부터 사용하지 않음! 하단의 asset/module로 대체</h3>
+
 - css뿐만 아니라 `소스 코드에서 사용하는 모든 파일`을 모듈로 사용하게끔 할 수 있다. 파일을 모듈 형태로 지원하고 웹팩 아웃풋에 파일을 옮겨주는 것이 file-loader의 역할이다.
 - 가령 css에서 `url()`함수에 이미지 파일 경로를 지정할 수 있는데 웹팩은 file-loader를 이용해서 이 파일을 처리한다.
 
@@ -384,7 +393,8 @@ module.exports = {
 
 ### url loader
 
-<h3 style="color:red">(주의) webpack v5 이후부터 사용하지 않음! 하단의 asset/module로 대체</h3>
+<h5 style="color:red">(주의) webpack v5 이후부터 사용하지 않음! 하단의 asset/module로 대체</h3>
+
 - 사용하는 이미지 갯수가 많다면 네트웍 리소스를 사용하는 부담이 있고 사이트 성능에 영향을 줄 수도 있다. 만약 한 페이지에서 작은 이미지를 여러 개 사용한다면 `Data URI Scheme`을 이용하는 방법이 더 나은 경우도 있다. 이미지를 `Base64`로 인코딩하여 문자열 형태로 소스코드에 넣는 형식이다.
 
 ```
@@ -420,7 +430,7 @@ module.exports = {
 
 ### asset modules
 
-- [asset-modules webpack 공식 사이트 참고](https://webpack.js.org/guides/asset-modules)
+- [asset-modules webpack 공식 문서](https://webpack.js.org/guides/asset-modules)
 - [asset-modules 참고 블로그](https://tecoble.techcourse.co.kr/post/2021-08-30-webpack-asset-modules/)
 - webpack v5 이후부터는 file-loader, url-loader는 webpack의 기본 모듈로 채택되면서 더 이상 호환되지 않는다.
 - 대신 `asset-modules`를 사용한다고 한다. 아래 예제는 asset modules중에서 resource(file-loader역할)과 inline(url-loader)을 자동으로 선택하게 해주는 asset이다.
@@ -506,5 +516,106 @@ module.exports = {
   },
 };
 ```
+
+<br />
+
+## 📝 플러그인(Plugin)
+
+### 플러그인의 역할
+
+- 웹팩에서 로더와 마찬가지로 중요한 개념인 플러그인이 있다. 로더가 파일 단위로 처리하는 반면 플러그인은 번들된 결과물을 처리한다.
+- 번들된 자바스크립트는 난독화 한다거나 특정 텍스트를 추출하는 용도로 사용한다.
+
+<br />
+
+### 커스텀 플러그인 만들기
+
+- [webpack compiler-hooks 공식 문서](https://webpack.kr/api/compiler-hooks/)
+- 플러그인은 사실 실제로 구현할 일은 거의 없다 실제 필요한 플러그인들은 이미 다 제공되어 있다. 하지만 플러그인을 동작 원리를 이해하기 위해 플러그인을 직접 만들어보자.
+- 플러그인은 참고로 로더는 `함수`로 구현했지만 플러그인은 `클래스`로 구현한다.
+
+```js
+// my-webpack-plugin.js
+class MyWebpackPlugin {
+  apply(compiler) {
+    compiler.hooks.done.tap("My Plugin", (stats) => {
+      console.log("MyPlugin: done");
+    });
+  }
+}
+
+module.exports = MyWebpackPlugin;
+```
+
+- 플러그인 내부에 `apply` 함수를 구현하면 되는데 이 코드에서는 인자로 받은 `compiler`의 `tab` 함수를 사용했다.
+- 플러그인이 `작업이 완료되는(done) 시점`에 로그를 찍는 코드이다.
+
+```js
+const MyWebpackPlugin = require("./my-webpack-plugin");
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // loader
+    ],
+  },
+  plugins: [new MyWebpackPlugin()],
+};
+```
+
+- 웹팩 설정 객체의 `plugins 배열`에 설정한다. 클래스로 제공되는 플러그인의 `생성자 함수`를 실행해서 넘기는 방식이다.
+- 위 예제에서 build해보면 터미널에 `MyPlugin: done` 이 찍히는 것을 확인할 수 있다.
+- 그런데 파일이 여러 개인데 로그는 한 번만 찍혔다. 그것은 위에서 언급했지만 로더와 다르게 `플러그인은 하나로 번들링된 결과물`을 대상으로 동작 한다. 예제에서는 main.js로 결과물이 하나이기 때문에 플러그인이 한 번만 동작한 것이다.
+
+<br />
+
+- 그러면 어떻게 번들 결과에 접근할 수 있을까?
+
+<br />
+
+<h5 style="color:red">(주의) 아래 예제는 webpack v5 이후부터 사용하지 않음! 하단의 tabAsync로 대체</h3>
+
+```js
+// my-webpack-plugin.js
+class MyWebpackPlugin {
+  apply(compiler) {
+    // ...
+
+    compiler.plugin("emit", (compilation, callback) => {
+      const source = compilation.assets["main.js"].source();
+      console.log(source);
+      callback();
+    });
+  }
+}
+
+module.exports = MyWebpackPlugin;
+```
+
+- `compiler.plugin()` 함수의 두번째 인자 콜백함수는 emit 이벤트가 발생하면 실행된다.
+- emit 이벤트는 assets을 출력 디렉터리로 방출하기 직전에 실행되는 이벤트이다.
+- 번들된 결과가 compilation 객체에 들어 있는데 `compilation.assets['main.js'].source()` 함수로 접근할 수 있다. 위 코드를 build하면 터미널에 번들링된 결과물을 확인할 수 있다.
+- 하지만 compiler.plugin 예제는 webpack 5부터 사용하지 않는다. webpack5부터는 `compiler.hooks.emit.tapAsync`을 사용한다.
+
+```js
+class MyWebpackPlugin {
+  apply(compiler) {
+    // ...
+
+    compiler.hooks.emit.tapAsync("My Plugin", (compilation, callback) => {
+      const source = compilation.assets["main.js"].source();
+      console.log(source);
+      callback();
+    });
+  }
+}
+
+module.exports = MyWebpackPlugin;
+```
+
+- 추가적으로 웹팩 공식 문서에서는 `callback`을 통해 개발자들은 webpack의 빌드 프로세스에 자신만의 행동을 도입할 수 있다고 설명한다.
+- 이는 `plugin`을 설정하고 기능 구현이 끝나면 webpack에서 제공하는 `callback`을 `최하단`에 callback()을 호출해주면 빌드 프로세스에 특정 기능이 추가된다.
+- 하지만 다시 설명하지만 플러그인을 직접 만드는 일은 거의 없다. 이미 필요한 플러그인은 다 제공된다!
 
 <br />

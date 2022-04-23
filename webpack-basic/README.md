@@ -630,6 +630,7 @@ module.exports = MyWebpackPlugin;
 ### BannerPlugin
 
 - BannerPlugin은 결과물에 `빌드 정보`나 `커밋 버전`같은 것을 추가할 수 있다.
+- BannerPlugin은 `webpack의 기본 플러그인`이다. 따라서 webpack을 require하고 사용하면 된다.
 
 ```js
 const webpack = require("webpack");
@@ -654,7 +655,6 @@ module.exports = {
 };
 ```
 
-- BannerPlugin은 `webpack의 기본 플러그인`이다. 따라서 webpack을 require하고 사용하면 된다.
 - 생성자 함수에 전달하는 옵션 객체의 `banner` 속성에 문자열을 전달한다. 웹팩 컴파일 타임에 얻을 수 있는 정보, 가령 빌드 시간이나 커밋 정보를 전달하기위해 함수로 전달할 수도 있다.
 - 위 예제에서는 빌드 시간, 커밋 버전, 작성자를 추가했다.
 
@@ -668,7 +668,6 @@ module.exports = {
 
 ```js
 const webpack = require("webpack");
-const childProcess = require("child_process");
 
 module.exports = {
   mode: "development",

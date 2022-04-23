@@ -17,6 +17,11 @@
 13. [자주 사용하는 로더 - (asset-modules)](#asset-modules)
 14. [플러그인의 역할](#플러그인의-역할)
 15. [커스텀 플러그인 만들기](#커스텀-플러그인-만들기)
+16. [자주 사용하는 플러그인 - BannerPlugin](#bannerplugin)
+17. [자주 사용하는 플러그인 - DefinePlugin](#defineplugin)
+18. [자주 사용하는 플러그인 - HtmlTemplatePlugin](#htmltemplateplugin)
+19. [자주 사용하는 플러그인 - CleanWebpackPlugin](#cleanwebpackplugin)
+20. [자주 사용하는 플러그인 - MiniCssExtractPlugin](#minicssextractplugin)
 
 <br />
 
@@ -617,5 +622,264 @@ module.exports = MyWebpackPlugin;
 - 추가적으로 웹팩 공식 문서에서는 `callback`을 통해 개발자들은 webpack의 빌드 프로세스에 자신만의 행동을 도입할 수 있다고 설명한다.
 - 이는 `plugin`을 설정하고 기능 구현이 끝나면 webpack에서 제공하는 `callback`을 `최하단`에 callback()을 호출해주면 빌드 프로세스에 특정 기능이 추가된다.
 - 하지만 다시 설명하지만 플러그인을 직접 만드는 일은 거의 없다. 이미 필요한 플러그인은 다 제공된다!
+
+<br />
+
+## 📝 자주 사용하는 플러그인
+
+### BannerPlugin
+
+- BannerPlugin은 결과물에 `빌드 정보`나 `커밋 버전`같은 것을 추가할 수 있다.
+
+```js
+const webpack = require("webpack");
+const childProcess = require("child_process");
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // loader
+    ],
+  },
+  plugins: [
+    new webpack.BannerPlugin({
+      banner: `
+        Build Date: ${new Date().toLocaleDateString()}
+        Commit Version: ${childProcess.execSync("git rev-parse --short HEAD")}
+        Author: ${childProcess.execSync("git config user.name")}}
+      `,
+    }),
+  ],
+};
+```
+
+- BannerPlugin은 `webpack의 기본 플러그인`이다. 따라서 webpack을 require하고 사용하면 된다.
+- 생성자 함수에 전달하는 옵션 객체의 `banner` 속성에 문자열을 전달한다. 웹팩 컴파일 타임에 얻을 수 있는 정보, 가령 빌드 시간이나 커밋 정보를 전달하기위해 함수로 전달할 수도 있다.
+- 위 예제에서는 빌드 시간, 커밋 버전, 작성자를 추가했다.
+
+<br />
+
+### DefinePlugin
+
+- 어플리케이션은 `개발환경`과 `운영환경`으로 나눠서 운영한다. 가령 환경에 따라 API 서버 주소가 다를 수 있다.
+- 같은 소스 코드를 두 환경에 배포하기 위해서는 이러한 환경 의존적인 정보를 소스가 아닌 곳에서 관리하는 것이 좋다. 왜? 배포할 때마다 코드를 수정하는 것은 곤란하기 때문이다.
+- 웹팩은 이러한 환경 정보를 제공하기 위해 `DefinePlugin`을 제공한다.
+
+```js
+const webpack = require("webpack");
+const childProcess = require("child_process");
+
+module.exports = {
+  mode: "development",
+  // ...
+  module: {
+    rules: [
+      // loader
+    ],
+  },
+  plugins: [
+    // BannerPlugin
+    new webpack.DefinePlugin({
+      EXAMPLE: "1+1",
+      STRING_EXAMPLE: JSON.stringify("string example"),
+      "api.domain": JSON.stringify("http://dev.api.domain.com"),
+    }),
+  ],
+};
+```
+
+```js
+// app.js
+console.log(process.env.NODE_ENV); // development
+console.log(EXAMPLE); // 2
+console.log(STRING_EXAMPLE); // string example
+console.log(api.domain); // http://dev.api.domain.com
+```
+
+- 빈 객체를 전달해도 기본적으로 넣어주는 값이 있다. 노드 환경 정보인 `process.env.NODE_ENV`다.
+- 웹팩 설정의 `mode`에 설정한 값이 여기에 들어 있다. `development`를 설정했기 때문에 어플리케이션 코드에서 process.env.NODE_ENV로 접근하면 `development` 값을 얻을 수 있다.
+- 그 외에 직접 환경 변수를 넣고 싶다면 객체에 `프로퍼티`를 추가하면 된다. 기본적으로 코드가 등록된다. 예를 들어 `EXAMPLE: 1+1`을 넣고 EXAMPLE을 확인해보면 `2`가 출력된다.
+- 만약 코드가 아닌 값을 넣고 싶다면 `JSON.stringify()`로 한번 더 문자열하면 된다. 또한, 객체 형식으로 넣으면 객체 프로퍼티 접근(.)하는 것처럼 사용할 수 있다.
+
+<br />
+
+### HtmlTemplatePlugin
+
+- HtmlTemplatePlugin은 기존에 Banner, Define Plugin과 다르게 `써드 파티 패키지`이다.
+- HtmlTemplatePlugin은 `HTML 파일을 후처리`하는데 사용한다. 빌드 타임의 값을 넣거나 코드를 압축할 수 있다.
+
+```
+패키지 다운로드
+$yarn add -D html-webpack-plugin
+```
+
+- HtmlTemplatePlugin은 빌드하면 HTML 파일로 `output`이 생성된다. 우선, index.html 파일을 public/index.html로 옮겨보자
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- 로딩 스크립트 제거 -->
+  </body>
+</html>
+```
+
+```js
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+  // ...
+  plugins: [
+    // BannerPlugin, DefinePlugin
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
+    }),
+  ],
+};
+```
+
+- 옵션으로 template 경로를 줄 수 있다. 이렇게 경로를 주고 빌드를 하면 dist 폴더에 다음과 같은 index.html 파일을 확인할 수 있다.
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>Document</title>
+    <script defer src="main.js"></script>
+  </head>
+  <body></body>
+</html>
+```
+
+- `public/index.html`에서는 스크립트 태그를 제거했지만 빌드 후에 `dist/index.html`에는 스크립트 태그가 생긴 것을 확인할 수 있다.
+- HtmlWebpackPlugin을 사용하면 빌드 과정에서 html도 포함하기 때문에 좀 더 의존적이지 않은 코드로 html을 만들 수 있다.
+- 추가적으로 HtmlWebpackPlugin을 사용하면 `좀 더 유동적`으로 template을 만들 수 있다.
+
+```html
+<title>타이틀<%= env %></title>
+```
+
+```js
+module.exports = {
+  // ...
+  plugins: [
+    // BannerPlugin, DefinePlugin
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
+      templateParameters: {
+        env: process.env.NODE_ENV === "development" ? "(개발용)" : "(배포용)",
+      },
+    }),
+  ],
+};
+```
+
+- 위 예제처럼 `<%= env %>` 코드는 `ejs`문법이다. env라는 변수를 넣을 수 있는 템플릿 문법이다. 웹팩에서 이 env에다 값을 넣어줄 수 있다.
+- 그리고 webpack.config에다 `templateParameters`라는 옵션을 추가해주면 된다.
+
+```json
+{
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "build:dev": "NODE_ENV=development webpack",
+    "build:prod": "NODE_ENV=production webpack"
+  }
+}
+```
+
+- package.json에 다음과 같이 NODE_ENV를 설정하는 코드를 앞에다 추가해서 실행해보면 이에 대응하는 값이 env로 들어간다.
+
+```js
+module.exports = {
+  // ...
+  plugins: [
+    // BannerPlugin, DefinePlugin
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
+      templateParameters: {
+        env: process.env.NODE_ENV === "development" ? "(개발용)" : "(배포용)",
+      },
+      minify: process.env.NODE_ENV === "production" && {
+        collapseWhitespace: true, // 빈칸 제거
+        removeComments: true, // 주석제거
+      },
+    }),
+  ],
+};
+```
+
+- 또한 추가적으로 `minify` 옵션으로 `collapseWhitespace(빈칸 제거)`와 `removeComments(주석 제거)`을 추가해서 주석, 빈칸을 제거할 수 있다.
+- 보통 minify 기능은 운영 모드에서만 사용하고 개발 모드에서는 사용하지 않기때문에 조건문을 걸어줬다.
+
+<br />
+
+### CleanWebpackPlugin
+
+- CleanWebpackPlugin도 HtmlWebpackPlugin과 마찬가지로 써드 파티 패키지이다.
+- CleanWebpackPlugin은 `빌드 이전 결과물을 제거하는 플러그인`이다. 빌드 결과물은 output 경로에 모이는데 과거 파일이 남아있을 수 있다. 이전 빌드내용이 덮여 씌여지면 상관없지만 그렇지 않으면 output 폴더에 여전히 남아있을 수 있다.
+
+```
+패키지 다운로드
+$yarn add -D clean-webpack-plugin
+```
+
+```js
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+
+module.exports = {
+  // ...
+  plugins: [
+    // BannerPlugin, DefinePlugin, HtmlWebpackPlugin
+    new CleanWebpackPlugin(),
+  ],
+};
+```
+
+- 빌드하기 전에 dist폴더에 임의의 파일을 만들고 빌드 해보면 파일이 제거된 것을 확인할 수 있다.
+
+<br />
+
+### MiniCssExtractPlugin
+
+- 스타일시트가 많아지면 하나의 자바스크립트 결과물로 만드는 것이 부담일 수 있다.
+- 번들 결과에서 스타일시트 코드만 뽑아서 별도의 CSS 파일로 만들어 `역할에 따라 분리`하는 것이 좋다.
+- 브라우저에서 큰 파일 하나를 내려받는 것 보다, 여러 개의 작은 파일을 동시에 다운로드하는 것이 빠르다.
+- 개발 환경에서는 CSS를 하나의 모듈로 처리해도 상관없지만 프러덕션 환경에서는 분리하는 것이 효과적이다. `MiniCssExtractPlugin`은 `CSS를 별로 파일로 뽑아내는 플러그인`이다.
+
+```
+패키지 다운로드
+$yarn add -D mini-css-extract-plugin
+```
+
+```js
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+      // asset loader
+    ],
+  },
+  plugins: [
+    // BannerPlugin, DefinePlugin, HtmlWebpackPlugin, CleanWebpackPlugin
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+    }),
+  ],
+};
+```
+
+- MiniCssExtractPlugin은 다른 플러그인과 다르게 로더부분도 수정(style-loader)이 필요하다.
+- style-loader 부분을 MiniCssExtractPlugin.loader로 대체할 수 있다.
 
 <br />

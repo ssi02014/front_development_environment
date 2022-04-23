@@ -1,5 +1,9 @@
 const path = require("path");
-const MyWebpackPlugin = require("./my-webpack-plugin");
+const webpack = require("webpack");
+const childProcess = require("child_process");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   mode: "development",
@@ -19,7 +23,7 @@ module.exports = {
         // 만약 파일이 여러 개라면 당연히 로더도 여러 번 실행된다
         // 배열로 설정하면 뒤에서부터 앞으로 로더가 동작한다.
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
@@ -32,5 +36,32 @@ module.exports = {
       },
     ],
   },
-  plugins: [new MyWebpackPlugin()],
+  plugins: [
+    new webpack.BannerPlugin({
+      banner: `
+        Build Date: ${new Date().toLocaleDateString()}
+        Commit Version: ${childProcess.execSync("git rev-parse --short HEAD")}
+        Author: ${childProcess.execSync("git config user.name")}}
+      `,
+    }),
+    new webpack.DefinePlugin({
+      EXAMPLE: "1+1",
+      STRING_EXAMPLE: JSON.stringify("string example"),
+      "api.domain": JSON.stringify("http://dev.api.domain.com"),
+    }),
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
+      templateParameters: {
+        env: process.env.NODE_ENV === "development" ? "(개발용)" : "(배포용)",
+      },
+      minify: process.env.NODE_ENV === "production" && {
+        collapseWhitespace: true, // 빈칸 제거
+        removeComments: true, // 주석제거
+      },
+    }),
+    new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+    }),
+  ],
 };

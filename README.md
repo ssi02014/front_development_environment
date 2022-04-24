@@ -5,7 +5,7 @@
 ## ✅ README 정리
 
 1. [NPM](https://github.com/ssi02014/front_development_environment/tree/master/npm)
-2. [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack_basic)
+2. [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic)
 
 <br />
 

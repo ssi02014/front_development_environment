@@ -777,21 +777,33 @@ module.exports = {
 };
 ```
 
-- 위 예제처럼 `<%= env %>` 코드는 `ejs`문법이다. env라는 변수를 넣을 수 있는 템플릿 문법이다. 웹팩에서 이 env에다 값을 넣어줄 수 있다.
+- 위 예제처럼 `<%= env %>` 코드는 `ejs`문법이다. `env`라는 변수를 넣을 수 있는 템플릿 문법이다. 웹팩에서 이 env에다 값을 넣어줄 수 있다.
 - 그리고 webpack.config에다 `templateParameters`라는 옵션을 추가해주면 된다.
 
 ```json
+// package.json
 {
+  // ...
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "build:dev": "NODE_ENV=development webpack",
-    "build:prod": "NODE_ENV=production webpack"
+    "build": "webpack --progress",
+    "build:dev": "NODE_ENV=development webpack --progress",
+    "build:prod": "NODE_ENV=production webpack --progresss"
   }
+  // ...
 }
 ```
 
-- package.json에 다음과 같이 NODE_ENV를 설정하는 코드를 앞에다 추가해서 실행해보면 이에 대응하는 값이 env로 들어간다.
+```html
+<!-- build:prod 실행 -->
+<head>
+  <title>검색(배포용)</title>
+</head>
+<!-- ... -->
+```
+
+- package.json에 다음과 같이 `NODE_ENV를 설정하는 코드(NODE_ENV=development)`를 앞에다 추가해서 build 실행해보면 이에 대응하는 값이 env로 들어간다.
+- 참고로 `--progress`는 build를 실행했을 때 build의 진행률을 보여준다.
 
 ```js
 module.exports = {
@@ -878,7 +890,7 @@ module.exports = {
 };
 ```
 
-- MiniCssExtractPlugin은 다른 플러그인과 다르게 로더부분도 수정(style-loader)이 필요하다.
-- style-loader 부분을 MiniCssExtractPlugin.loader로 대체할 수 있다.
+- MiniCssExtractPlugin은 다른 플러그인과 다르게 `로더 부분도 수정(style-loader)이 필요`하다.
+- style-loader 부분을 `MiniCssExtractPlugin.loader`로 대체할 수 있다.
 
 <br />

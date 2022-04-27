@@ -20,10 +20,11 @@
 
 ## 👀 폴더 참고 사항
 
-1. `lecture-example`: 강의 실습 폴더
-2. `sample`: README에 작성된 예제 폴더
-3. `npm`: npm 관련 정리 폴더
-4. `webpack-basic`: webpack 기본편 정리 폴더
+1. `lecture-example`: 강의 실습
+2. `sample`: README에 작성된 예제
+3. `npm`: npm 관련 정리
+4. `webpack-basic`: webpack 기본편 정리
+5. `babel`: babel 정리
 
 <br />
 

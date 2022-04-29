@@ -36,3 +36,5 @@
 - webpack v5 이후부터는 file-loader와 url-loader는 기본 모듈로 채택되면서 더이상 호환되지 않는다.
 - file-loader와 url-loader는 각각 asset/resource, asset/inline로 대체되었다.
 - asset/resource와 asset/inline을 조건 상태에따라서 자동으로 선택하는 asset도 있다.
+
+<br />

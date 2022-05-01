@@ -533,7 +533,7 @@ module.exports = {
 ```
 
 - 위 예제를 보면 `@babel/plugin-proposal-class-properties` 플러그인이 추가된 것을 확인할 수 있는데 이는 이니셜라이저 구문을 추가하여(즉 = 대입 연산자를 사용하여) 클래스 속성을 정의할 수 있는 방식으로 클래스 속성을 변환한다.
-- 쉽게 말하면 기존에는 클래스 내에서 생성된 개체의 인스턴스에 대해 원하는 모든 속성은 `constructor(생성자)` 메서드 내에서 정의했어야 했다. 하지만 `Babel 7.14(ECMAScript 2022)`부터 더 이상 생성 자 내부에 속성을 정의할 필요가 없다.
+- 쉽게 말하면 기존에는 클래스 내에서 생성된 개체의 인스턴스에 대해 원하는 모든 속성은 `constructor(생성자)` 메서드 내에서 정의했어야 했다. 하지만 `Babel 7.14(ECMAScript 2022)`부터 더 이상 생성자 내부에 속성을 정의할 필요가 없다.
 
 ```js
 // 기존 class
@@ -548,7 +548,6 @@ class Person {
 ```
 
 ```js
-// ECMAScript2022 이후 class
 class Person {
   name = "Alice"; //Property initializer syntax
   getName() {

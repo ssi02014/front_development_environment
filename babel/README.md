@@ -4,11 +4,14 @@
 
 1. [크로스 브라우징](#크로스-브라우징)
 2. [트랜스파일과 빌드](#트랜스파일과-빌드)
-3. [바벨의 기본 동작](#바벨의-기본-동작)
-4. [커스텀 플러그인](#커스텀-플러그인)
-5. [플러그인 사용하기](#플러그인-사용하기)
-6. [커스텀 프리셋](#커스텀-프리셋)
-7. [프리셋 사용하기](#프리셋-사용하기)
+3. [바벨(Babel)의 기본 동작](#바벨의-기본-동작)
+4. [커스텀 플러그인(Plugin)](#커스텀-플러그인)
+5. [플러그인(Plugin) 사용하기](#플러그인-사용하기)
+6. [커스텀 프리셋(Preset)](#커스텀-프리셋)
+7. [프리셋(Preset) 사용하기](#프리셋-사용하기)
+8. [타겟 브라우저(target)](#타겟-브라우저)
+9. [폴리필(Polyfill)](#폴리필)
+10. [웹팩과 바벨 통합](#통합)
 
 ### 🤓 참고
 
@@ -281,3 +284,262 @@ module.exports = {
 <br />
 
 ### 프리셋 사용하기
+
+- 바벨은 목적에 따라 몇 가지 프리셋을 제공한다.
+  1. preset-env
+  2. preset-flow
+  3. preset-react
+  4. preset-typescript
+
+<br />
+
+- preset-env는 ECMAScript2015+ 를 변환할 때 사용한다. 바벨 7 이전 버전에는 연도별로 각 프리셋을 제공했지만 현재는 env로 합쳐졌다.
+- preset-flow, react, typescript 는 flow, 리액트, 타입스크립트를 변환하기 위한 프리셋이다.
+
+<br />
+
+```
+설치
+yarn add -D @babel/preset-env
+```
+
+```js
+// babel.config.js:
+module.exports = {
+  presets: ["@babel/preset-env"],
+};
+```
+
+```js
+// 실행
+// npx babel app.js
+
+("use strict");
+
+var alert = function (msg) {
+  return window.alert(msg);
+};
+```
+
+- IE에 적용될 수 있도록 `preset-env`를 설치하고 `babel.config.js`에 적용했다.
+- 실제로 현업에서는 위 처럼 바로 프리셋을 적용한다. 위에서 했던 것처럼 플러그인을 불러온다거나 커스텀 프리셋을 사용하지는 않는다.
+
+<br />
+
+## 📝 env 프리셋 설정과 폴리필
+
+### 타겟 브라우저
+
+- preset-env는 특정 브라우저를 지원하는 것을 설정할 수 있다.
+- 만약 내가 작성한 코드가 크롬 최신 버전만 지원한다고 하면 `target` 옵션에 브라우저 버전명만 지정하면 env 프리셋은 이에 맞는 플러그인을 찾아 최적의 코드를 출력한다.
+
+```js
+module.exports = {
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        targets: {
+          chrome: "90", // 크롬 90까지 지원하는 코드를 만든다
+        },
+      },
+    ],
+  ],
+};
+```
+
+```js
+// 실행
+// npx babel app.js
+"use strict";
+
+const alert = (msg) => window.alert(msg);
+```
+
+- 크롬 최신 버전은 블록 스코프와 화살표 함수를 모두 지원하기 때문에 코드를 변환하지 않는 결과물을 만들었다.
+- 만약 `IE`도 지원해야 한다면 바벨 설정에 브라우저 정보만 추가하면 된다.
+
+```js
+// babel.config.js :
+module.exports = {
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        targets: {
+          chrome: "90",
+          ie: "11", // ie 11까지 지원하는 코드를 만든다
+        },
+      },
+    ],
+  ],
+};
+```
+
+```js
+// 실행 npx babel app.js
+"use strict";
+
+var alert = function alert(msg) {
+  return window.alert(msg);
+};
+```
+
+<br />
+
+### 폴리필
+
+- 이번에 변환과 조금 다른 폴리필에 대해 알아보기 위해 app.js 코드를 수정해보자.
+
+```js
+// app.js
+new Promise();
+```
+
+```js
+// 실행 npx babel app.js
+"use strict";
+
+new Promise();
+```
+
+- 위 예제를 그냥 바벨로 처리하면 변환이 없다.
+- 분명 `preset-env`를 통해 변환을 시도했지만 Promise는 변함이 없다. target에 IE 11을 설정하고 빌드한 것인데 IE는 여전히 Promise를 해석하지 못하고 에러를 던진다.
+- 이는, 브라우저는 현재 스코프부터 시작해 전역까지 Promise라는 이름을 찾으려고 시도할 것이다. 그러나 스코프 어디에도 Promise란 이름이 없기 때문에 레퍼런스 에러를 발생시키는 것이다.
+- 플러그인이 Promise를 ECMAScript5 버전으로 변환할 것으로 기대했는데 예상과 다르게 바벨은 ECMAScript2015+를 ECMAScript5 버전으로 변환할 수 있는 것만 빌드한다.
+- Promise와 같이 이렇게 변환하지 못하는 것들은 `폴리필(Polyfill)`이라고 부르는 코드 조각을 추가해서 해결한다.
+- 쉽게 예로 들면 ECMAScript2015+의 블록 스코프는 함수 스코프로, 화살표 함수는 일반 함수로 대체할 수 있다. 하지만 Promise는 대체할 수 없다.( 헷갈릴 수 있는데 대체할 수는 없지만 ECMAScript5 버전으로 코드를 구현할 수는 있다 참고: [core-js promise](https://github.com/zloirock/core-js/blob/master/packages/core-js/modules/es.promise.js) )
+
+<br />
+
+- but! `preset-env`는 폴리필을 지정할 수 있는 옵션을 제공한다.
+- 폴리필을 제공하는 대표적인 라이브러리 중에 core-js가 있다. 또, babel-polyfill도 있지만 최근에는 core-js를 많이 사용하는 편이다.
+
+```js
+module.exports = {
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        targets: {
+          chrome: "79", // 크롬 79까지 지원하는 코드를 만든다
+          ie: "11",
+        },
+        useBuiltIns: "usage",
+        corejs: {
+          version: 2,
+        },
+      },
+    ],
+  ],
+};
+```
+
+```js
+// 실행 npx babel app.js
+"use strict";
+
+require("core-js/modules/es6.object.to-string.js");
+require("core-js/modules/es6.promise.js");
+
+new Promise();
+```
+
+- 이전과 동일하게 `new Promise()` 코드는 바뀐게 없지만 위에 `require`가 추가된 것을 확인할 수 있다.
+- 실제로 위 코드가 안전하게 동작하려면 `core-js`가 사전에 로딩되어 있어야 하고 그 다음 우리가 번들한 코드가 작동해야한다.
+
+<br />
+
+## 📝 웹팩과 바벨 통합
+
+### 통합
+
+- 실무 환경에서 바벨을 직접 사용하는 것보다는 웹팩으로 통합해서 사용하는 것이 일반적이다.
+- 로더 형태로 제공하는 `babel-loader`가 그것이다
+
+```
+설치
+yarn add -D babel-loader
+```
+
+```js
+// webpack.config.js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ... css-loader
+      // ... asset
+      {
+        test: /\.js$/,
+        exclude: /node_modules/, // 바벨 로더가 처리하지 않는 폴더 설정
+        loader: "babel-loader", // 바벨 로더를 추가한다
+      },
+    ],
+  },
+  plugins: [
+    // ...
+  ],
+```
+
+- 먼저 패키지를 설치하고 웹팩 설정에 `babel-loader`를 추가한다.
+- 하지만 이렇게 설정하고 실제로 빌드를 해보면 다음과 같은 에러가 출력되는 것을 확인할 수 있다.
+
+```
+Module not found: Error: Can't resolve 'core-js/modules/es6.object.to-string.js' in '/Users/bunjang/individual-workspace/front_development_environment/sample'
+```
+
+- 이렇게 나온 이유는 `core-js` 모듈을 찾을 수 없기 때문인데, 사실 폴리필 사용을 설정했다면 core-js 라이브러리도 함께 설치해줘야 한다.
+
+```
+설치
+yarn add core-js@2
+```
+
+- 설치 후에 진행하면 제대로 빌드되는 것을 확인할 수 있다.
+<h5 style="color:red">참고로 위 예제는 core-js v3로 설치할 경우 제대로 작동하지 않는다. 아래 예제를 참고하자</h3>
+
+<br />
+
+### babel-loader + core-js v3 최신 사용법
+
+```js
+// webpack.config.js:
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ... css-loader
+      // ... asset
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader", // 사용할 로더 이름
+          options: { // 로더 옵션
+            presets: [
+              [
+                "@babel/env",
+                {
+                  useBuiltIns: "usage",
+                  corejs: 3,
+                  targets: {
+                    browsers: ["last 3 versions", "ie >= 11"],
+                    node: "current",
+                  },
+                },
+              ],
+            ]
+          },
+        },
+    ],
+  },
+  plugins: [
+    // ...
+  ],
+```
+
+- 약간의 설명을 추가하자면 이전에는 preset 설정 시, `@babel/preset-env`였으나, 이제는 `@babel/env`로 작성하면 된다.
+-
+
+<br />

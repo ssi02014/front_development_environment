@@ -8,7 +8,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   mode: "development",
   entry: {
-    main: "./src/app.js",
+    main: "./app.js",
   },
   output: {
     path: path.resolve("./dist"), // 노드의 절대 경로
@@ -31,6 +31,28 @@ module.exports = {
         parser: {
           dataUrlCondition: {
             maxSize: 40 * 1024,
+          },
+        },
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              [
+                "@babel/env",
+                {
+                  useBuiltIns: "usage",
+                  corejs: 3,
+                  targets: {
+                    browsers: ["last 3 versions", "ie >= 11"],
+                    node: "current",
+                  },
+                },
+              ],
+            ],
           },
         },
       },

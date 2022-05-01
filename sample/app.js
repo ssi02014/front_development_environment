@@ -1,1 +1,3 @@
-const alert = (msg) => window.alert(msg);
+const promise = new Promise((resolve) => {
+  resolve(2);
+}).then((res) => console.log(res));

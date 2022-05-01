@@ -28,13 +28,88 @@
 
 <br />
 
-## 👀 Webpack 버전 관련 참고 사항
+## 🔖 Webpack 버전 관련 참고 사항
 
 ### 1. asset-modules
 
 - [asset-modules webpack 공식 사이트 참고](https://webpack.js.org/guides/asset-modules)
-- webpack v5 이후부터는 file-loader와 url-loader는 기본 모듈로 채택되면서 더이상 호환되지 않는다.
-- file-loader와 url-loader는 각각 asset/resource, asset/inline로 대체되었다.
-- asset/resource와 asset/inline을 조건 상태에따라서 자동으로 선택하는 asset도 있다.
+- webpack v5 이후부터는 `file-loader`와 `url-loader`는 기본 모듈로 채택되면서 더이상 호환되지 않는다.
+- file-loader와 url-loader는 각각 `asset/resource`, `asset/inline`로 대체되었다.
+- asset/resource와 asset/inline을 조건 상태에따라서 자동으로 선택하는 `asset`도 있다.
+- 자세한 내용은 [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic) 참고
+
+```js
+// webpack.config.js asset-modules 예제
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: "asset",
+        parser: {
+          dataUrlCondition: {
+            maxSize: 40 * 1024,
+          },
+        },
+      },
+    ],
+  },
+};
+```
+
+<br />
+
+### 2. babel-loader와 core-js 버전3 호환
+
+- `core-js` v2는 아래 예제로 제대로 빌드가 진행된다.
+
+```js
+// webpack.config.js babel-loader + core-js v2 예제
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ... css-loader
+      // ... asset
+      {
+        test: /\.js$/,
+        exclude: /node_modules/, // 바벨 로더가 처리하지 않는 폴더 설정
+        loader: "babel-loader", // 바벨 로더를 추가한다
+      },
+    ],
+  },
+  plugins: [
+    // ...
+  ],
+```
+
+- 하지만 core-js v3가 설치된 경우에는 위 예제는 제대로 작동하지 않고 아래 예제처럼 작성해야 동작한다. 자세한 내용은 [바벨(Babel) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/babel) 참고
+
+```js
+// webpack.config.js babel-loader + core-js v3 예제
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ... css-loader
+      // ... asset
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader", // 사용할 로더 이름
+          options: { // 로더 옵션
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-proposal-class-properties"],
+          },
+        },
+      },
+    ],
+  },
+  plugins: [
+    // ...
+  ],
+```
 
 <br />

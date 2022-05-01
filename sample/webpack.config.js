@@ -40,19 +40,8 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: [
-              [
-                "@babel/env",
-                {
-                  useBuiltIns: "usage",
-                  corejs: 3,
-                  targets: {
-                    browsers: ["last 3 versions", "ie >= 11"],
-                    node: "current",
-                  },
-                },
-              ],
-            ],
+            presets: ["@babel/env"],
+            plugins: ["@babel/plugin-proposal-class-properties"],
           },
         },
       },

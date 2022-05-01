@@ -12,6 +12,7 @@
 8. [타겟 브라우저(target)](#타겟-브라우저)
 9. [폴리필(Polyfill)](#폴리필)
 10. [웹팩과 바벨 통합](#통합)
+11. [babelrc와babel.config.js 차이점](#차이점)
 
 ### 🤓 참고
 
@@ -497,11 +498,13 @@ yarn add core-js@2
 ```
 
 - 설치 후에 진행하면 제대로 빌드되는 것을 확인할 수 있다.
+  <br />
+
 <h5 style="color:red">참고로 위 예제는 core-js v3로 설치할 경우 제대로 작동하지 않는다. 아래 예제를 참고하자</h3>
 
 <br />
 
-### babel-loader + core-js v3 최신 사용법
+### 웹팩에서 babel-loader 최신 사용법
 
 ```js
 // webpack.config.js:
@@ -517,21 +520,11 @@ module.exports = {
         use: {
           loader: "babel-loader", // 사용할 로더 이름
           options: { // 로더 옵션
-            presets: [
-              [
-                "@babel/env",
-                {
-                  useBuiltIns: "usage",
-                  corejs: 3,
-                  targets: {
-                    browsers: ["last 3 versions", "ie >= 11"],
-                    node: "current",
-                  },
-                },
-              ],
-            ]
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-proposal-class-properties"],
           },
         },
+      },
     ],
   },
   plugins: [
@@ -539,7 +532,74 @@ module.exports = {
   ],
 ```
 
-- 약간의 설명을 추가하자면 이전에는 preset 설정 시, `@babel/preset-env`였으나, 이제는 `@babel/env`로 작성하면 된다.
--
+- 위 예제를 보면 `@babel/plugin-proposal-class-properties` 플러그인이 추가된 것을 확인할 수 있는데 이는 이니셜라이저 구문을 추가하여(즉 = 대입 연산자를 사용하여) 클래스 속성을 정의할 수 있는 방식으로 클래스 속성을 변환한다.
+- 쉽게 말하면 기존에는 클래스 내에서 생성된 개체의 인스턴스에 대해 원하는 모든 속성은 `constructor(생성자)` 메서드 내에서 정의했어야 했다. 하지만 `Babel 7.14(ECMAScript 2022)`부터 더 이상 생성 자 내부에 속성을 정의할 필요가 없다.
+
+```js
+// 기존 class
+class Person {
+  constructor() {
+    this.name = "Alice";
+  }
+  getName() {
+    return this.name;
+  }
+}
+```
+
+```js
+// ECMAScript2022 이후 class
+class Person {
+  name = "Alice"; //Property initializer syntax
+  getName() {
+    return this.name;
+  }
+}
+```
+
+- 또한, `@babel/plugin-proposal-class-properties` 플러그인은 정적 필드 및 메서드에 대한 지원을 추가한다.
+
+```js
+class Person {
+  static department = "IT"; //Static class properties
+  static getDepartment() {
+    return Person.department;
+  }
+}
+```
+
+<br />
+
+## 📝 babelrc와 babel.config.js 차이점
+
+- 바벨을 설정할 때 `.babelrc`와 `babel.config.js`로 설정이 가능하다. 어떤 프로젝트는 .babelrc를 사용하기도 하고, 어디에서는 babel.config.js를 사용하기도 한다.
+- 바벨은 두 가지 설정 파일 포맷을 갖고 포맷에 따라 용도가 다르다. 위 두 가지 파일 포맷 중 하나를 단독으로 사용할 수도 있고, 둘 다 사용할 수도 있다.
+
+### 차이점
+
+1. babel.config.js: (프로젝트 전체 설정)
+   - `babel.config.js`는 프로젝트 전체 구성시 사용된다. 따라서 여러 패키지 디렉토리를 가진 프로젝트에서 하나의 바벨 설정을 할 때 사용된다.
+2. .babelrc (지역 설정)
+   - `.babelrc`는 파일/디렉토리의 하위 집합에서 특정 변환/플러그인을 실행하려는 경우에 유용하다.
+   - 프로젝트 내에 서드파티 라이브러리가 바벨에 의해 변환되지 않기를 원할 때도 사용할 수 있다.
+   - 바벨이 컴파일 되는 `filename`부터 폴더 구조를 따라 올라가며 `.babelrc` 파일을 로드한다. 만약 동일한 플러그인이나 프리셋에 대한 설정이 있다면 지역 설정 파일이 전체 설정을 덮어 씌운다.
+
+```
+프로젝트 트리 구조
+test-babel-config-file
+└-babel.config.js
+└-package.json   // 전체설정파일
+│
+└-src
+   └-service1
+   │    └-.babelrc  // 지역설정파일
+   │    └-code.js
+   │
+   └-service2
+        └-.babelrc  // 지역설정파일
+        └-folder1
+           └-code.js
+           └-package.json   // babel속성이없음
+```
 
 <br />

@@ -28,7 +28,7 @@
 
 <br />
 
-## 🔖 Webpack 버전 관련 참고 사항
+## 🔖 Webpack, Babel 버전 관련 참고 사항
 
 ### 1. asset-modules
 
@@ -102,6 +102,42 @@ module.exports = {
           options: { // 로더 옵션
             presets: ["@babel/preset-env"],
             plugins: ["@babel/plugin-proposal-class-properties"],
+          },
+        },
+      },
+    ],
+  },
+  plugins: [
+    // ...
+  ],
+```
+
+<br />
+
+### 3. Babel async/await 문법 적용
+
+- 바벨 적용 시에 async/await 문법 오류를 해결하려면 `@babel/plugin-transform-runtime`을 설치하고 셋팅해주면 해결할 수 있다.
+- 기존에는 `@babel/polyfill`을 설치하거나 `regenerator-runtime`을 설치해서 해결했지만 `babel 7.4.0`부터 @babel/polyfill이 deprecated되면서 @babel/plugin-transform-runtime 을 설치하고 해결해야 한다.
+
+```js
+// webpack.config.js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ... css-loader
+      // ... asset
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-transform-runtime"
+            ],
           },
         },
       },

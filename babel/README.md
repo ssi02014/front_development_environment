@@ -12,7 +12,8 @@
 8. [타겟 브라우저(target)](#타겟-브라우저)
 9. [폴리필(Polyfill)](#폴리필)
 10. [웹팩과 바벨 통합](#통합)
-11. [babelrc와babel.config.js 차이점](#차이점)
+11. [async/await 적용](#async-await-적용)
+12. [babelrc와babel.config.js 차이점](#차이점)
 
 ### 🤓 참고
 
@@ -456,7 +457,7 @@ new Promise();
 ### 통합
 
 - 실무 환경에서 바벨을 직접 사용하는 것보다는 웹팩으로 통합해서 사용하는 것이 일반적이다.
-- 로더 형태로 제공하는 `babel-loader`가 그것이다
+- 로더 형태로 제공하는 `babel-loader`가 그것이다.
 
 ```
 설치
@@ -498,7 +499,9 @@ yarn add core-js@2
 ```
 
 - 설치 후에 진행하면 제대로 빌드되는 것을 확인할 수 있다.
-  <br />
+- 추가적으로 기억해야 될 부분이 babel-loader 내부에서 @babel-core가 실행된다. 그리고 @babel-core는 babel.config.js를 참조해서 실행한다. 이 히스토리를 기억하자.
+
+<br />
 
 <h5 style="color:red">참고로 위 예제는 core-js v3로 설치할 경우 제대로 작동하지 않는다. 아래 예제를 참고하자</h3>
 
@@ -565,6 +568,45 @@ class Person {
     return Person.department;
   }
 }
+```
+
+<br />
+
+### async await 적용
+
+<h5 style="color:red">babel 7.4.0부터 @babel/plugin-transform-runtime를 설치해서 해결할 수 있다.</h3>
+
+- async/await 문법이 작성된 코드는 현재 까지는 빌드 시에 에러가 발생한다. 이 문제는 `regenerator-runtime` 패키지를 이용하면 해결할 수 있다. `regenerator-runtime`은 바벨을 적용할 때 `async/await` 문법을 제공하는 패키지이다.
+- async/await 문법 문제를 기존에는 `@babel/polyfill`을 설치하거나 `regenerator-runtime`을 설치해서 해결했지만 `babel 7.4.0`부터 @babel/polyfill이 deprecated되면서 다른 해결책을 이용해서 위 문제를 해결할 수 있다.
+- 바로 `@babel/plugin-transform-runtime` 패키지를 설치하고 `webpack.config.js`에서 babel-loader 셋팅한 부분에서 plugin을 추가하면 위 문제를 해결할 수 있다.
+
+```js
+// webpack.config.js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ... css-loader
+      // ... asset
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-transform-runtime"
+            ],
+          },
+        },
+      },
+    ],
+  },
+  plugins: [
+    // ...
+  ],
 ```
 
 <br />

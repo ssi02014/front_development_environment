@@ -40,8 +40,11 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/env"],
-            plugins: ["@babel/plugin-proposal-class-properties"],
+            presets: ["@babel/preset-env"],
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-transform-runtime",
+            ],
           },
         },
       },

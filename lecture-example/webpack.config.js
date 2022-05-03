@@ -18,11 +18,18 @@ module.exports = {
     rules: [
       {
         test: /\.(scss|css)$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        use: [
+          // 3. Create 'style' nodes from JS string
+          MiniCssExtractPlugin.loader,
+          // 2. Translate CSS into CommonJS
+          "css-loader",
+          // 1. Compiles Sass to CSS
+          "sass-loader",
+        ],
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        type: "asset",
+        type: "asset", // asset-resource + asset-inline
         parser: {
           dataUrlCondition: {
             maxSize: 40 * 1024,

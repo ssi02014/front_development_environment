@@ -22,8 +22,8 @@ module.exports = {
         //test에다 처리할 파일의 패턴을 명시하면 해당하는 파일들을 use에 설정한 로더에의해 처리된다.
         // 만약 파일이 여러 개라면 당연히 로더도 여러 번 실행된다
         // 배열로 설정하면 뒤에서부터 앞으로 로더가 동작한다.
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        test: /\.(scss|css)$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,

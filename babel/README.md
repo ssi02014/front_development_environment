@@ -13,7 +13,8 @@
 9. [폴리필(Polyfill)](#폴리필)
 10. [웹팩과 바벨 통합](#통합)
 11. [async/await 적용](#async-await-적용)
-12. [babelrc와babel.config.js 차이점](#차이점)
+12. [sass 적용](#sass-적용)
+13. [babelrc와babel.config.js 차이점](#차이점)
 
 ### 🤓 참고
 
@@ -580,6 +581,11 @@ class Person {
 - async/await 문법 문제를 기존에는 `@babel/polyfill`을 설치하거나 `regenerator-runtime`을 설치해서 해결했지만 `babel 7.4.0`부터 @babel/polyfill이 deprecated되면서 다른 해결책을 이용해서 위 문제를 해결할 수 있다.
 - 바로 `@babel/plugin-transform-runtime` 패키지를 설치하고 `webpack.config.js`에서 babel-loader 셋팅한 부분에서 plugin을 추가하면 위 문제를 해결할 수 있다.
 
+```
+설치
+yarn add -D @babel/plugin-transform-runtime
+```
+
 ```js
 // webpack.config.js
 module.exports = {
@@ -597,7 +603,7 @@ module.exports = {
             presets: ["@babel/preset-env"],
             plugins: [
               "@babel/plugin-proposal-class-properties",
-              "@babel/plugin-transform-runtime"
+              "@babel/plugin-transform-runtime",
             ],
           },
         },
@@ -607,6 +613,45 @@ module.exports = {
   plugins: [
     // ...
   ],
+};
+```
+
+<br />
+
+### sass 적용
+
+- Sass(Scss)를 적용할 때는 `sass-loader`가 필요하다. 이때 sass-loader만 있으면 에러가 발생하고 꼭 `sass`도 함께 설치해야 한다.
+
+```
+설치
+yarn add -D sass sass-loader
+```
+
+```js
+// webpack.config.js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.(scss|css)$/,
+        use: [
+          // 3. Create 'style' nodes from JS string
+          MiniCssExtractPlugin.loader,
+          // 2. Translate CSS into CommonJS
+          "css-loader",
+          // 1. Compiles Sass to CSS
+          "sass-loader",
+        ],
+      },
+      // ... asset
+      // ... babel-loader
+    ],
+  },
+  plugins: [
+    // ...
+  ],
+};
 ```
 
 <br />

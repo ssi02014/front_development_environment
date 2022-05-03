@@ -1,4 +1,4 @@
-# 💻 프론트엔드 개발환경의 이해(webpack, babel, eslint)
+# 💻 프론트엔드 개발환경의 이해(webpack, babel, eslint, prettier)
 
 <br />
 
@@ -6,7 +6,8 @@
 
 1. [NPM](https://github.com/ssi02014/front_development_environment/tree/master/npm)
 2. [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic)
-3. [바벨(Babel) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/babel)
+3. [바벨(Babel)](https://github.com/ssi02014/front_development_environment/tree/master/babel)
+4. [ESlint](https://github.com/ssi02014/front_development_environment/tree/master/eslint_prettier)
 
 <br />
 
@@ -14,17 +15,16 @@
 
 - [📖 김정환님 블로그](https://jeonghwan-kim.github.io/series/2019/12/09/frontend-dev-env-npm.html)
 
-- [📖 강의에서 사용된 패키지 정보](https://github.com/jeonghwan-kim/lecture-frontend-dev-env/blob/master/package.json)
-
 <br />
 
 ## 👀 폴더 참고 사항
 
 1. `lecture-example`: 강의 실습
-2. `sample`: README에 작성된 예제
-3. `npm`: npm 관련 정리
-4. `webpack-basic`: webpack 기본편 정리
-5. `babel`: babel 정리
+2. `sample`: 각 폴더 README에 작성된 예제
+3. `npm`: npm 관련 README 정리
+4. `webpack-basic`: webpack 기본편 README 정리
+5. `babel`: babel README 정리
+6. `eslint_prettier`: eslint, prettier README 정리
 
 <br />
 

@@ -8,8 +8,8 @@
 4. [ESLint 설치 및 사용법](#설치-및-사용법)
 5. [ESLint 규칙](#규칙)
 6. [자동으로 수정할 수 있는 규칙](#자동으로-수정할-수-있는-규칙)
-6. [Extensible Config(recommended, airbnb, standard)](#extensible-config)
-6. [ESLint 설정 초기화 --init](#초기화)
+7. [Extensible Config(recommended, airbnb, standard)](#extensible-config)
+8. [ESLint 설정 초기화 --init](#초기화)
 
 <br />
 
@@ -140,6 +140,7 @@ npx eslint app.js
 ✖ 1 problem (1 error, 0 warnings)
   1 error and 0 warnings potentially fixable with the `--fix` option.
 ```
+
 - 마지막 줄에 에러 메시지를 보면 이 에러는 `잠재적으로 수정 가능(potentially fixable)`이라고 나와있다. 이는 실행 할 때 `--fix` 옵션을 붙여 검사하면 검사 후 오류가 발생한 코드를 자동으로 수정한다.
 
 ```
@@ -152,6 +153,7 @@ npx eslint app.js --fix
 <br />
 
 ### Extensible Config
+
 - 이러한 규칙을 하나하나 설정하는게 아니고 규칙 여러개를 모아 놓은 것이 있다. 그것이 `eslint:recommended` 설정이다. [ESLint - Rules](https://eslint.org/docs/rules/) 에서 왼족에 `체크✓`표시 되어 있는 것이 이 설정에서 활성화되어 있는 규칙이다.
 - `eslint:recommended` 이것을 사용하려면 `extends`설정을 추가해야 한다.
 
@@ -161,19 +163,20 @@ module.exports = {
   extends: [
     "eslint:recommended", // 미리 설정된 규칙 세트을 사용한다
   ],
-}
+};
 ```
 
 - `eslint:recommended` 외에도 규칙이 더 필요하다면 `rules`속성에 추가해서 확장할 수 있다.
 - ESLint에서 기본으로 제공하는 설정 외에 자주 사용하는 두 가지가 있다.
-   1. airbnb
-   2. standard
+  1.  airbnb
+  2.  standard
 - `airbnb` 설정은 [airbnb 스타일 가이드](https://github.com/airbnb/javascript)를 따르는 규칙 모음이다.
 - `standard` 설정은 [자바스크립트 스탠다드 스타일](https://standardjs.com/)을 사용한다.
 
 <br />
 
 ### 초기화
+
 - 실제로는 이러한 eslint 설정은 `--init` 옵션을 추가하면 손쉽게 구성할 수 있다.
 
 ```
@@ -197,20 +200,30 @@ npx eslint --init
 ```js
 // .eslintrc.js
 module.exports = {
-  "env": {
-    "browser": true,
-    "es2021": true,
-    "node": true // 이 부분 추가
+  env: {
+    browser: true,
+    es2021: true,
+    node: true, // 이 부분 추가
   },
-  "extends": "eslint:recommended",
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+  extends: "eslint:recommended",
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
   },
-  "rules": {}
+  rules: {},
+};
+```
+
+- 그리고 추가적으로 package.json에 lint 명령어를 추가해 쉽게 eslint를 실행하도록 하자.
+
+```json
+{
+  // ...
+  "scripts": {
+    // ...
+    "lint": "eslint src --fix" // --fix는 자동으로 코드 수정시켜주는 옵션
+  }
 }
-
-
 ```
 
 <br />

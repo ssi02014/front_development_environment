@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "build:dev": "NODE_ENV=development webpack",
-    "build:prod": "NODE_ENV=production webpack"
+    "build:prod": "NODE_ENV=production webpack",
+    "lint": "eslint src --fix"
   },
   "author": "",
   "license": "ISC",

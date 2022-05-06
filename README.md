@@ -7,7 +7,7 @@
 1. [NPM](https://github.com/ssi02014/front_development_environment/tree/master/npm)
 2. [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic)
 3. [바벨(Babel)](https://github.com/ssi02014/front_development_environment/tree/master/babel)
-4. [ESlint](https://github.com/ssi02014/front_development_environment/tree/master/eslint_prettier)
+4. [ESlint, Prettier](https://github.com/ssi02014/front_development_environment/tree/master/eslint_prettier)
 
 <br />
 

@@ -14,8 +14,9 @@
 10. [Prettier 설치 및 사용법](#prettier-설치-및-사용법)
 11. [Prettier 포맷팅](#포맷팅)
 12. [ESLint Prettier 통합 방법 - eslint-config-prettier](#eslint-config-prettier)
-12. [ESLint Prettier 통합 방법 - eslint-plugin-prettier](#eslint-plugin-prettier)
-13. [eslint-plugin-prettier와 eslint-config-prettier 통합](#eslint-plugin-prettier와-eslint-config-prettier-통합)
+13. [ESLint Prettier 통합 방법 - eslint-plugin-prettier](#eslint-plugin-prettier)
+14. [eslint-plugin-prettier와 eslint-config-prettier 통합](#eslint-plugin-prettier와-eslint-config-prettier-통합)
+15. [.prettier 파일 적용하기](#prettier-파일-적용)
 
 <br />
 
@@ -310,6 +311,7 @@ foo(
 <br />
 
 ## 📝 ESLint Prettier 통합 방법
+
 ### eslint-plugin-prettier
 
 - 포맷팅은 Prettier에게 맡기더라도 코드 품질과 관련된 검사는 ESLint의 몫이다. 따라서, 이 둘을 함께 사용하는 것이 최선이다.
@@ -357,6 +359,7 @@ console.log();
 <br />
 
 ### eslint-plugin-prettier
+
 - 그래서 위 둘을 한방에 실행시켜주는 `eslint-plugin-prettier`패키지가 존재한다. 이 패키지는 프리티어 규칙을 ESLint 규칙으로 추가하는 플러그인이다. 프리티어의 모든 규칙이 ESLint로 들어오기 때문에 ESLint만 실행하면 된다.
 - 해당 패키지를 설치하고, 설정 파일에서 `plugins`와 `rules`에 설정을 추가한다.
 
@@ -394,6 +397,7 @@ npx eslint app.js --fix
 <br />
 
 ### eslint-plugin-prettier와 eslint-config-prettier 통합
+
 - 프리티어는 이 두 패키지(`eslint-plugin-prettier`, `eslint-config-prettier`)를 함께 사용하는 단순한 설정을 제공하는데 아래 설정을 추가하면 된다.
 
 ```js
@@ -406,5 +410,117 @@ module.exports = {
 ```
 
 - 두 패키지들 모두 설치한 상태에서 설정파일 extends에 `plugin:prettier/recommended`을 추가하면 된다.
+
+<br />
+
+## 📝 .Prettier 파일 적용
+
+- Prettier를 프로젝트에 적용하는 방법이 크게 3가지가 있다.
+  1. `.prettierrc` 설정 파일 사용(자주 사용)
+  2. `VSCode` 전역 설정 파일 사용(자주 사용)
+  3. Prettier 패키지 설치 후 CLI 사용(거의 사용 안함)
+
+### prettier 파일 적용
+
+- 우선 VSCode Extension Prettier 확장 설치해야한다.
+- 그리고 위에서 언급했던 ESLint에서 Prettier와 겹치는 포맷팅룰을 제거한다.
+
+```
+yarn add -D eslint eslint-config-prettier eslint-plugin-prettier prettier
+```
+
+<br />
+
+- prettier는 기본적으로 프로젝트의 root에 있는 `.prettierrc` 파일에 적힌 룰에 의해서 동작한다. 프로젝트에 이 파일이 없으면 기본값으로 세팅된다.
+
+```json
+// .prettierrc
+{
+  "arrowParens": "avoid", // 화살표 함수 괄호 사용 방식
+  "bracketSpacing": false, // 객체 리터럴에서 괄호에 공백 삽입 여부
+  "endOfLine": "auto", // EoF 방식, OS별로 처리 방식이 다름
+  "htmlWhitespaceSensitivity": "css", // HTML 공백 감도 설정
+  "jsxBracketSameLine": false, // JSX의 마지막 `>`를 다음 줄로 내릴지 여부
+  "jsxSingleQuote": false, // JSX에 singe 쿼테이션 사용 여부
+  "printWidth": 80, //  줄 바꿈 할 폭 길이
+  "proseWrap": "preserve", // markdown 텍스트의 줄바꿈 방식 (v1.8.2)
+  "quoteProps": "as-needed" // 객체 속성에 쿼테이션 적용 방식
+  "semi": true, // 세미콜론 사용 여부
+  "singleQuote": true, // single 쿼테이션 사용 여부
+  "tabWidth": 2, // 탭 너비
+  "trailingComma": "all", // 여러 줄을 사용할 때, 후행 콤마 사용 방식
+  "useTabs": false, // 탭 사용 여부
+  "vueIndentScriptAndStyle": true, // Vue 파일의 script와 style 태그의 들여쓰기 여부 (v1.19.0)
+  "parser": '', // 사용할 parser를 지정, 자동으로 지정됨
+  "filepath": '', // parser를 유추할 수 있는 파일을 지정
+  "rangeStart": 0, // 포맷팅을 부분 적용할 파일의 시작 라인 지정
+  "rangeEnd": Infinity, // 포맷팅 부분 적용할 파일의 끝 라인 지정,
+  "requirePragma": false, // 파일 상단에 미리 정의된 주석을 작성하고 Pragma로 포맷팅 사용 여부 지정 (v1.8.0)
+  "insertPragma": false, // 미리 정의된 @format marker의 사용 여부 (v1.8.0)
+  "overrides": [
+    {
+      "files": "*.json",
+      "options": {
+        "printWidth": 200
+      }
+    }
+  ], // 특정 파일별로 옵션을 다르게 지정함, ESLint 방식 사용
+}
+```
+
+- 하지만 따로 필요한 부분만 설정해보자.
+
+```json
+// .prettierrc
+{
+  "singleQuote": true,
+  "semi": true,
+  "useTabs": false,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "printWidth": 80,
+  "arrowParens": "avoid",
+  "endOfLine": "auto"
+}
+```
+
+<br />
+
+```js
+// .eslintrc.js
+module.exports = {
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
+  extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+  },
+  rules: {},
+};
+```
+
+- 위와 같이 `.prettierrc`와 `.eslintrc.js`를 수정 후에 vscode에 적용될 수 있게 setting.json 파일을 수정하면 된다.
+
+```json
+// vscode/setting.json
+{
+  //...
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true
+}
+```
 
 <br />

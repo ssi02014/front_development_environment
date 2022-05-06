@@ -13,4 +13,13 @@
 // (function () {})();
 
 // console.log("hello world");
-console.log();;;;;;;;;;
+console.log();
+
+function abc() {
+  const a = 1;
+  if (a < 2) {
+    console.log(123);
+  }
+}
+
+abc();

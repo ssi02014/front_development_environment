@@ -426,8 +426,13 @@ module.exports = {
 - 그리고 위에서 언급했던 ESLint에서 Prettier와 겹치는 포맷팅룰을 제거한다.
 
 ```
-yarn add -D eslint eslint-config-prettier eslint-plugin-prettier prettier
+yarn add -D eslint eslint-config-prettier prettier
 ```
+
+- `eslint-plugin-prettier`는 현재 추천되지 않는다고 한다. 그 이유는
+  1. prettier 실행보다 늦다
+  2. 에디터 상에서 빨간 줄무늬가 많이 나타나서 번거롭다 (eslint에 의해 생기는 줄무늬들이다. 정확히는 eslint로서 사용되는 prettier)
+  3. 플러그인이라는 불필요한 층이 있어서 문제가 발생할 수 있다
 
 <br />
 
@@ -494,7 +499,7 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  extends: ["eslint:recommended", "prettier"],
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",

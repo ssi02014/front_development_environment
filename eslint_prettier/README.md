@@ -2,20 +2,26 @@
 
 ## 📄 목차
 
-1. [ESLint의 배경](#배경)
+1. [ESLint의 배경](#eslint-배경)
 2. [린트(Lint)가 필요한 상황](#린트가-필요한-상황)
 3. [ESLint 기본 개념](#기본-개념)
-4. [ESLint 설치 및 사용법](#설치-및-사용법)
+4. [ESLint 설치 및 사용법](#eslint-설치-및-사용법)
 5. [ESLint 규칙](#규칙)
 6. [자동으로 수정할 수 있는 규칙](#자동으로-수정할-수-있는-규칙)
 7. [Extensible Config(recommended, airbnb, standard)](#extensible-config)
 8. [ESLint 설정 초기화 --init](#초기화)
+9. [Prettier의 배경](#prettier-배경)
+10. [Prettier 설치 및 사용법](#prettier-설치-및-사용법)
+11. [Prettier 포맷팅](#포맷팅)
+12. [ESLint Prettier 통합 방법 - eslint-config-prettier](#eslint-config-prettier)
+12. [ESLint Prettier 통합 방법 - eslint-plugin-prettier](#eslint-plugin-prettier)
+13. [eslint-plugin-prettier와 eslint-config-prettier 통합](#eslint-plugin-prettier와-eslint-config-prettier-통합)
 
 <br />
 
-## 📝 ESLint 배경
+## 📝 ESLint
 
-### 배경
+### ESLint 배경
 
 - 코드의 오류나 버그, 스타일을 점검하는 것을 린트(Lint) 혹은 린터(Linter)라고 부른다.
 
@@ -50,7 +56,7 @@ console.log()(function () {})();
 
 <br />
 
-### 설치 및 사용법
+### ESLint 설치 및 사용법
 
 - 우선 노드 패키지(npm or yarn)으로 ESLint를 설치한다.
 
@@ -225,5 +231,180 @@ module.exports = {
   }
 }
 ```
+
+<br />
+
+## 📝 Prettier
+
+### Prettier 배경
+
+- Prettier(프리티어)는 코드를 더 예쁘게 만든다. ESLint의 역할 중 포맷팅과 겹치는 부분이 있지만 프리티어는 좀 더 일관적인 스타일 코드로 다듬는다. 반면 코드 품질과 관련된 기능은 하지 않는 것이 ESLint와 다른 점이다.
+
+<br />
+
+### Prettier 설치 및 사용법
+
+- 우선 Prettier 패키지를 설치하자.
+
+```
+설치
+yarn add -D prettier
+```
+
+- 그리고 아래처럼 코드를 작성해보자.
+
+```js
+console.log("hello world");
+```
+
+- Prettier로 실행해보면
+
+```
+실행
+npx prettier app.js --write
+```
+
+```js
+// app.js
+console.log("Hello world");
+```
+
+- 다음과 같이 작은 따옴표가 `큰 따옴표`로 변경되고 뒤에 `세미콜론(;)`도 추가되었다. 프리티어는 ESLint와 달리 규칙이 `미리 세팅`되어 있기 때문에 설정 없이도 바로 사용할 수 있다.
+
+<br />
+
+### 포맷팅
+
+```js
+console.log(
+  "----------------매 우 긴 문 장 입 니 다 80자가 넘 는 코 드 입 니 다.----------------"
+);
+
+foo(
+  reallyLongArg(),
+  omgSoManyParameters(),
+  IShouldRefactorThis(),
+  isThereSeriouslyAnotherOne()
+);
+```
+
+- ESLint는 `max-len` 규칙을 이용해 위 코드를 검사하고 결과만 알려 줄 뿐 수정하는 것은 개발자의 몫이다.
+- 반면 Prettier는 어떻게 수정해야할지 알고 있기 때문에 아래처럼 코드를 다시 작성한다.
+
+```js
+console.log(
+  "----------------매 우 긴 문 장 입 니 다 80자가 넘 는 코 드 입 니 다.----------------"
+);
+
+foo(
+  reallyLongArg(),
+  omgSoManyParameters(),
+  IShouldRefactorThis(),
+  isThereSeriouslyAnotherOne()
+);
+```
+
+- 위 예제로 확인할 수 있듯이 Prettier는 코드를 문맥을 어느 정도 파악하고 상황에 따라 최적의 모습으로 스타일을 수정한다.
+- Prettier가 포맷팅 품질은 ESLint보다 훨씬 사람에게 친숙하게 좋은 결과를 만든다.
+
+<br />
+
+## 📝 ESLint Prettier 통합 방법
+### eslint-plugin-prettier
+
+- 포맷팅은 Prettier에게 맡기더라도 코드 품질과 관련된 검사는 ESLint의 몫이다. 따라서, 이 둘을 함께 사용하는 것이 최선이다.
+- Prettier는 이러한 ESLint와 통합 방법을 제공한다.
+- `eslint-config-prettier`는 프리티어와 충돌하는 ESLint 규칙을 끄는 역할을 한다. 둘 다 사용하는 경우 규칙이 충돌하기 때문이다.
+
+```
+설치
+yarn add -D eslint-config-prettier
+```
+
+- 패키지를 설치한 뒤 설정 파일의 extends 배열에 추가한다.
+
+```js
+// .eslintrc.js
+{
+  extends: [
+    "eslint:recommended",
+    "eslint-config-prettier"
+  ]
+}
+```
+
+- 예를 들어 ESLint는 중복 세미콜론 사용을 검사한다. 하지만 이것은 Prettier도 마찬가지다. 따라서 어느 한쪽에서는 규칙을 꺼야하는데 eslint-config-prettier를 추가하면 ESLint 규칙을 비활성화 한다.
+
+```js
+var foo = "";
+console.log();
+```
+
+- 위와 같은 코드를 prettier와 eslint를 동시에 실행하면
+
+```
+실행
+npx prettier app.js --write && npx eslint app.js --fix
+```
+
+```js
+var foo = ""; // error  'foo' is assigned a value but never used  no-unused-vars
+console.log();
+```
+
+- 위 예제처럼 포맷팅된 것을 확인할 수 있다. 하지만 아직은 prettier와 eslint를 동시에 실행해야된다는 점이 상당히 귀찮다.
+
+<br />
+
+### eslint-plugin-prettier
+- 그래서 위 둘을 한방에 실행시켜주는 `eslint-plugin-prettier`패키지가 존재한다. 이 패키지는 프리티어 규칙을 ESLint 규칙으로 추가하는 플러그인이다. 프리티어의 모든 규칙이 ESLint로 들어오기 때문에 ESLint만 실행하면 된다.
+- 해당 패키지를 설치하고, 설정 파일에서 `plugins`와 `rules`에 설정을 추가한다.
+
+```
+yarn add -D eslint-plugin-prettier
+```
+
+```js
+// .eslintrc.js
+module.exports = {
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
+  extends: ["eslint:recommended", "eslint-config-prettier"],
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+  },
+  plugins: ["prettier"],
+  rules: {
+    "prettier/prettier": "error",
+  },
+};
+```
+
+- Prettier의 모든 규칙을 ESLint 규칙으로 가져온 설정이다. 이제는 ESLint만 실행해도 Prettier 포맷팅 기능을 가져갈 수 있다.
+
+```
+실행
+npx eslint app.js --fix
+```
+
+<br />
+
+### eslint-plugin-prettier와 eslint-config-prettier 통합
+- 프리티어는 이 두 패키지(`eslint-plugin-prettier`, `eslint-config-prettier`)를 함께 사용하는 단순한 설정을 제공하는데 아래 설정을 추가하면 된다.
+
+```js
+// .eslintrc.js
+module.exports = {
+  // ...
+  extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  // ...
+};
+```
+
+- 두 패키지들 모두 설치한 상태에서 설정파일 extends에 `plugin:prettier/recommended`을 추가하면 된다.
 
 <br />

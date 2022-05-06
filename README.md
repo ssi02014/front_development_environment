@@ -6,8 +6,9 @@
 
 1. [NPM](https://github.com/ssi02014/front_development_environment/tree/master/npm)
 2. [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic)
-3. [바벨(Babel)](https://github.com/ssi02014/front_development_environment/tree/master/babel)
-4. [ESlint, Prettier](https://github.com/ssi02014/front_development_environment/tree/master/eslint_prettier)
+3. [웹팩(Webpack) - 심화편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-deep)
+4. [바벨(Babel)](https://github.com/ssi02014/front_development_environment/tree/master/babel)
+5. [ESlint, Prettier](https://github.com/ssi02014/front_development_environment/tree/master/eslint-prettier)
 
 <br />
 
@@ -23,8 +24,9 @@
 2. `sample`: 각 폴더 README에 작성된 예제
 3. `npm`: npm 관련 README 정리
 4. `webpack-basic`: webpack 기본편 README 정리
-5. `babel`: babel README 정리
-6. `eslint_prettier`: eslint, prettier README 정리
+5. `webpack-deep`: webpack 심화편 README 정리
+6. `babel`: babel README 정리
+7. `eslint-prettier`: eslint, prettier README 정리
 
 <br />
 

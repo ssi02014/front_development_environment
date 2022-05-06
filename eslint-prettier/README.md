@@ -416,9 +416,12 @@ module.exports = {
 ## 📝 .Prettier 파일 적용
 
 - Prettier를 프로젝트에 적용하는 방법이 크게 3가지가 있다.
+
   1. `.prettierrc` 설정 파일 사용(자주 사용)
   2. `VSCode` 전역 설정 파일 사용(자주 사용)
   3. Prettier 패키지 설치 후 CLI 사용(거의 사용 안함)
+
+- `.prettierrc 파일`과 `VSCode 전역 설정 파일 설정`하는 방법을 알아보자.
 
 ### prettier 파일 적용
 
@@ -436,7 +439,7 @@ yarn add -D eslint eslint-config-prettier prettier
 
 <br />
 
-- prettier는 기본적으로 프로젝트의 root에 있는 `.prettierrc` 파일에 적힌 룰에 의해서 동작한다. 프로젝트에 이 파일이 없으면 기본값으로 세팅된다.
+- prettier는 기본적으로 프로젝트의 root에 있는 `.prettierrc` 파일에 적힌 룰에 의해서 동작한다. 프로젝트에 이 파일이 없으면 `기본값`으로 세팅된다.
 
 ```json
 // .prettierrc

@@ -30,6 +30,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
+    "husky": "^7.0.4",
     "mini-css-extract-plugin": "^2.6.0",
     "prettier": "^2.6.2",
     "sass": "^1.51.0",
@@ -39,5 +40,10 @@
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "eslint app.js --fix"
+    }
+  }
 }

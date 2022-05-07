@@ -426,10 +426,15 @@ module.exports = {
 ### prettier 파일 적용
 
 - 우선 VSCode Extension Prettier 확장 설치해야한다.
+
+<img width="749" alt="스크린샷 2022-05-07 오후 9 57 13" src="https://user-images.githubusercontent.com/64779472/167255430-72b1093f-8d47-4058-85a5-417f56cd00b9.png">
+
+<img width="749" alt="스크린샷 2022-05-07 오후 9 56 19" src="https://user-images.githubusercontent.com/64779472/167255406-7bcb91c1-391b-46a1-894f-4ae0b6352ec5.png">
+
 - 그리고 위에서 언급했던 ESLint에서 Prettier와 겹치는 포맷팅룰을 제거한다.
 
 ```
-yarn add -D eslint eslint-config-prettier prettier
+yarn add -D eslint prettier eslint-config-prettier
 ```
 
 - `eslint-plugin-prettier`는 현재 추천되지 않는다고 한다. 그 이유는

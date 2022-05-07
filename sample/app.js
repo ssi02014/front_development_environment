@@ -13,7 +13,6 @@
 // (function () {})();
 
 // console.log("hello world");
-console.log();
 
 function abc() {
   const a = 1;

@@ -88,5 +88,17 @@ module.exports = {
     port: 8080,
     historyApiFallback: true,
     allowedHosts: ['host.com'],
+    onBeforeSetupMiddleware: devServer => {
+      if (!devServer) {
+        throw new Error('webpack-dev-server is not defined');
+      }
+
+      devServer.app.get('/api/keywords', function (req, res) {
+        res.json([
+          { id: 1, keyword: '이탈리아' },
+          { id: 2, keyword: '대한민국' },
+        ]);
+      });
+    },
   },
 };

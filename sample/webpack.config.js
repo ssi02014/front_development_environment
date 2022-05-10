@@ -88,6 +88,9 @@ module.exports = {
     port: 8080,
     historyApiFallback: true,
     allowedHosts: ['host.com'],
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
     onBeforeSetupMiddleware: devServer => {
       if (!devServer) {
         throw new Error('webpack-dev-server is not defined');

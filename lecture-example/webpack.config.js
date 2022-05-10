@@ -80,4 +80,17 @@ module.exports = {
       filename: "[name].css",
     }),
   ],
+  devServer: {
+    static: false,
+    client: {
+      overlay: true,
+    },
+    compress: true,
+    host: "localhost",
+    port: 8080,
+    historyApiFallback: true,
+    proxy: {
+      "/api": "http://localhost:8000",
+    },
+  },
 };

@@ -19,7 +19,7 @@ module.exports = {
   module: {
     rules: [
       {
-        //test에다 처리할 파일의 패턴을 명시하면 해당하는 파일들을 use에 설정한 로더에의해 처리된다.
+        // test에다 처리할 파일의 패턴을 명시하면 해당하는 파일들을 use에 설정한 로더에의해 처리된다.
         // 만약 파일이 여러 개라면 당연히 로더도 여러 번 실행된다
         // 배열로 설정하면 뒤에서부터 앞으로 로더가 동작한다.
         test: /\.(scss|css)$/,
@@ -89,19 +89,20 @@ module.exports = {
     historyApiFallback: true,
     allowedHosts: ['host.com'],
     proxy: {
-      '/api': 'http://localhost:3000',
+      '/api': 'http://localhost:8000',
     },
-    onBeforeSetupMiddleware: devServer => {
-      if (!devServer) {
-        throw new Error('webpack-dev-server is not defined');
-      }
+    hot: true,
+    // onBeforeSetupMiddleware: devServer => {
+    //   if (!devServer) {
+    //     throw new Error('webpack-dev-server is not defined');
+    //   }
 
-      devServer.app.get('/api/keywords', function (req, res) {
-        res.json([
-          { id: 1, keyword: '이탈리아' },
-          { id: 2, keyword: '대한민국' },
-        ]);
-      });
-    },
+    //   devServer.app.get('/api/keywords', function (req, res) {
+    //     res.json([
+    //       { id: 1, keyword: '이탈리아' },
+    //       { id: 2, keyword: '대한민국' },
+    //     ]);
+    //   });
+    // },
   },
 };

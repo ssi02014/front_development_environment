@@ -6,7 +6,10 @@
 2. [webpack-dev-server 설치 및 사용](#webpack-dev-server-설치-및-사용)
 3. [webpack-dev-server 기본 설정](#webpack-dev-server-기본-설정)
 4. [API 연동: 목업 API 1(devServer.onBeforeSetupMiddleware)](#목업-api-onbeforesetupmiddleware)
-5. [API 연동: 실제 API (devServer.proxy)](#proxy-설정)
+5. [API 연동: 실제 API 프록시 설정(devServer.proxy)](#proxy-설정)
+6. [핫 모듈 리플레이스먼트(HMR) - 배경](#hmr-배경)
+7. [핫 모듈 리플레이스먼트(HMR) - 설정](#hmr-설정)
+8. [핫 모듈 리플레이스먼트(HMR) - 핫로딩을 지원하는 로더](#핫로딩을-지원하는-로더)
 
 <br />
 
@@ -186,5 +189,85 @@ module.exports = {
 ```
 
 - 다음과 같이 `context` 속성으로 여러 특정 경로를 프록시하려는 경우 배열로 넣어서 사용할 수 있다.
+
+<br />
+
+## 📝 핫 모듈 리플레이스먼트
+
+### HMR 배경
+
+- 웹팩 개발 서버는 코드의 변화를 감지해서 전체 화면을 갱신하기 때문에 개발 속도를 높일 수 있다. 하지만 어떤 상황에서는 전체 화면을 갱신하는 것이 좀 불편할 수도 있다.
+- SPA는 브라우저에서 데이터를 들고 있기 때문에 리프레시 후에 모든 데이터가 초기화 되어 버린다. 혹은 다른 부분을 수정했는데 입력한 폼 데이터가 날아가버리는 경우도 있다.
+- 웹팩 개발 서버에서는 전체 화면 갱신을 하지 않고 변경한 모듈만 바꾸는 기능을 제공하는데 이를 핫 모듈 리플레이서먼트(HMR)이라고 한다.
+
+<br />
+
+### HMR 설정
+
+- 설정은 간단하게 devServer.hot 속성에 true을 주면 된다.
+
+```js
+// webpack.config.js:
+module.exports = {
+  devServer = {
+    hot: true,
+  },
+}
+```
+
+```js
+// sample/app.js
+// HMR 실습을 위한 예제
+import form from "./form";
+import result from "./result";
+
+let resultEl;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const formEl = document.createElement("div");
+  formEl.innerHTML = form.render();
+  document.body.appendChild(formEl);
+
+  resultEl = document.createElement("div");
+  resultEl.innerHTML = await result.render();
+  document.body.appendChild(resultEl);
+});
+```
+
+- 위에처럼 `devServer.hot`옵션에 `true`를 주면 웹팩 개발 서버 위에서 `module.hot` 객체가 생성된다.
+- 이 객체의 `accept()`메서드는 감시할 모듈과 콜백 함수를 인자로 받는다. 아래 예제에서는 `result.js` 모듈을 감시하고 변경이 있으면 전달할 콜백 함수가 동작하도록 했다.
+
+```js
+// ...
+if (module.hot) {
+  console.log("핫 모듈 켜짐");
+  module.hot.accept("./result", () => {
+    console.log("result 모듈 변경");
+  });
+}
+```
+
+- 그리고 웹팩 개발 서버를 재 시작하면 `핫 모듈 켜짐` 로그가 찍히고 후에, result.js 파일을 수정하면 `result 모듈 변경` 로그가 찍히는 것을 확인할 수 있다.
+- `accept()` 메서드의 두 번째 인자로 넣은 콜백 함수 안에서 변경된 result 모듈을 교체할 수 있다.
+
+```js
+//...
+if (module.hot) {
+  console.log("핫 모듈 켜짐");
+  module.hot.accept("./result", async () => {
+    resultEl.innerHTML = await result.render();
+  });
+}
+```
+
+- 이제 result.js 코드를 수정하면 result.js를 제외한 다른 모듈들은 초기화되지 않고 result에 해당하는 view만 적용되는 것을 확인할 수 있다.
+- 결과적으로 핫 모듈 리플레이스먼트를 사용하면 코드를 변경할 때 전체 페이지가 초기화되는 것이 아니라 변경된 해당 모듈만 변경된다. 따라서 좀 더 개발을 수월하게 한다.
+
+<br />
+
+### 핫로딩을 지원하는 로더
+
+- HMR 인터페이스를 구현한 Loader만이 핫 로딩을 지원하는데 대표적으로 `style-loader`가 있다. css를 수정하면 자동으로 hmr이 적용된다.
+- 그 외에도 리액트를 지원하는 `react-hot-loader`, 파일을 지원하는 `file-loader`는 핫 모듈 리플레이스먼트를 지원한다.
 
 <br />

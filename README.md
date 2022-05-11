@@ -27,6 +27,7 @@
 5. `webpack-deep`: webpack 심화편 README 정리
 6. `babel`: babel README 정리
 7. `eslint-prettier`: eslint, prettier README 정리
+8. `server`: 테스트용 node server 폴더
 
 <br />
 

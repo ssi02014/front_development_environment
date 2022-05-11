@@ -40,6 +40,12 @@ let history = [
   { keyword: "검색기록0", date: "12.01" },
 ];
 
+let users = [
+  { id: 1, name: "민재" },
+  { id: 2, name: "연재" },
+  { id: 3, name: "번장" },
+];
+
 app.get("/api/keywords", (req, res) => {
   // res.header("Access-Control-Allow-Origin", "*");
   res.json(keywords);
@@ -68,6 +74,10 @@ app.delete("/api/history", (req, res) => {
 
   history = history.filter((item) => item.keyword !== keyword);
   res.json(history);
+});
+
+app.get("/api/users", (req, res) => {
+  res.json(users);
 });
 
 app.get("/api/search", (req, res) => {

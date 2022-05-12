@@ -4,18 +4,23 @@ const childProcess = require('child_process');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const mode = process.env.NODE_ENV || 'development'; // 기본값 development
 module.exports = {
   mode,
   entry: {
     main: './src/app.js',
+    // result: './src/result.js',
   },
   output: {
     path: path.resolve('./dist'), // 노드의 절대 경로
     filename: '[name].js',
     // [name]부분에 entry에서 설정한 key, 즉 main이 들어가게 된다.
     // 왜 이렇게 했냐? entry가 여러개일 경우 output도 여러개여야 하는데 이때 output이름을 동적으로 만들 수 있다.
+    chunkFilename: '[name].chunk.js', // 청크 파일 이름 구성
   },
   module: {
     rules: [
@@ -51,6 +56,25 @@ module.exports = {
       },
     ],
   },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new CssMinimizerPlugin(),
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true, // prod모드에서 콘솔 로그를 제거한다
+          },
+        },
+      }),
+    ],
+    // splitChunks: {
+    //   chunks: 'all',
+    // },
+  },
+  externals: {
+    axios: 'axios',
+  },
   plugins: [
     new webpack.BannerPlugin({
       banner: `
@@ -77,6 +101,18 @@ module.exports = {
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: '[name].css',
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: './node_modules/axios/dist/axios.min.js',
+          to: './axios.min.js',
+        },
+        {
+          from: './src/assets',
+          to: './assets',
+        },
+      ],
     }),
   ],
   devServer: {

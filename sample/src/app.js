@@ -14,27 +14,39 @@ import './app.css';
 
 // HMR 예제
 import form from './form';
-import result from './result';
+// import result from './result';
 
 let resultEl;
 let formEl;
+
+// function sayHello() {
+//   import(/* webpackChunkName: "hello" */ './hello').then(({ default: Hello }) =>
+//     document.body.appendChild(Hello()),
+//   );
+// }
 
 document.addEventListener('DOMContentLoaded', async () => {
   formEl = document.createElement('div');
   formEl.innerHTML = form.render();
   document.body.appendChild(formEl);
 
-  resultEl = document.createElement('div');
-  resultEl.innerHTML = await result.render();
-  document.body.appendChild(resultEl);
+  import(/* webpackChunkName: "result" */ './result').then(
+    async ({ default: result }) => {
+      resultEl = document.createElement('div');
+      resultEl.innerHTML = await result.render();
+      document.body.appendChild(resultEl);
+    },
+  );
 });
 
-if (module.hot) {
-  console.log('핫 모듈 켜짐');
-  module.hot.accept('./result', async () => {
-    resultEl.innerHTML = await result.render();
-  });
-  module.hot.accept('./form', async () => {
-    formEl.innerHTML = form.render();
-  });
-}
+// if (module.hot) {
+//   console.log('핫 모듈 켜짐');
+//   module.hot.accept('./result', async () => {
+//     resultEl.innerHTML = await result.render();
+//   });
+//   module.hot.accept('./form', async () => {
+//     formEl.innerHTML = form.render();
+//   });
+// }
+
+// console.log('app.js');

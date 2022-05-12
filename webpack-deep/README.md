@@ -10,6 +10,8 @@
 6. [핫 모듈 리플레이스먼트(HMR) - 배경](#hmr-배경)
 7. [핫 모듈 리플레이스먼트(HMR) - 설정](#hmr-설정)
 8. [핫 모듈 리플레이스먼트(HMR) - 핫로딩을 지원하는 로더](#핫로딩을-지원하는-로더)
+9. [최적화 - production 모드](#production-모드)
+10. [최적화 - optimization 최적화](#optimization-최적화)
 
 <br />
 
@@ -275,4 +277,58 @@ if (module.hot) {
 
 ## 📝 최적화
 
+- 코드가 많아지면 번들링되는 결과물도 커지기 마련이다. 거의 메가바이트 단위로 커질 수 있는데 이는 브라우저 성능에 영향을 줄 수 있다.
+- 지금부터 번들링한 결과물을 어떻게 최적화할 수 잇는지 알아보자
+
 <br />
+
+### production 모드
+
+- 웹팩에 내장되어 있는 최적화 방법 중 mode 값을 설정하는 방식이 가장 기본이다.
+- 세 가지 값이 올 수 있는데 지금까지 설정한 `development`는 디버깅 편의를 위해 아래 두 개 플러그인을 사용한다.
+
+  1. NamedChunksPlugin
+  2. NamedModulesPlugin
+
+- `DefinePlugin`을 사용한다면 `process.env.NODE_ENV`값이 `development`로 설정되어 어플리케이션에 전역변수로 주입된다.
+- 반면 mode를 `production`으로 설정하면 자바스크립트 결과물을 최소화 하기 위해 다음 일곱 개 플러그인을 사용한다.
+  1. FlagDependencyUsagePlugin
+  2. FlagIncludedChunksPlugin
+  3. ModuleConcatenationPlugin
+  4. NoEmitOnErrorsPlugin
+  5. OccurrenceOrderPlugin
+  6. SideEffectsFlagPlugin
+  7. TerserPlugin
+- `DefinePlugin`을 사용한다면 `process.env.NODE_ENV` 값이 `production` 으로 설정되어 어플리케이션 전역변수로 들어간다.
+- 그럼 환경변수 `NODE_ENV` 값에 따라 모드를 설정하도록 웹팩 설정 코드를 다음과 같이 추가할 수 있겠다.
+
+```js
+// webpack.config.js
+const mode = process.env.NODE_ENV || "development"; // 기본값을 development로 설정
+
+module.exports = {
+  mode,
+};
+```
+
+- 그리고 빌드 시에 해당 모드로 실행하도록 npm 스크립트를 추가한다.
+
+```json
+{
+  // ...
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --progress --open",
+    "build": "webpack",
+    "build:dev": "NODE_ENV=development webpack --progress",
+    "build:prod": "NODE_ENV=production webpack --progress",
+    "lint": "eslint src --fix"
+  }
+}
+```
+
+- `build:prod`로 빌드 해 보면 `main.js`의 파일이 난독화 되있는 바면, `build:dev`로 하면 알아볼 수 있게 빌드되있다. 이처럼 어떤 mode로 빌드하냐에 따라 다른 결과물을 가져올 수 있다.
+
+<br />
+
+### optimization 최적화

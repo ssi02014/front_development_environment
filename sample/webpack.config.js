@@ -5,8 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
+const mode = process.env.NODE_ENV || 'development'; // 기본값 development
 module.exports = {
-  mode: 'development',
+  mode,
   entry: {
     main: './src/app.js',
   },

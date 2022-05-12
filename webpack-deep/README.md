@@ -12,6 +12,10 @@
 8. [핫 모듈 리플레이스먼트(HMR) - 핫로딩을 지원하는 로더](#핫로딩을-지원하는-로더)
 9. [최적화 - production 모드](#production-모드)
 10. [최적화 - optimization 최적화](#optimization-최적화)
+11. [최적화 - TerserWebpackPlugin](#terserwebpackplugin)
+12. [최적화 - 코드스플리팅(entry)](#코드스플리팅-entry)
+13. [최적화 - 코드스플리팅(Dynamic Import)](#코드스플리팅-dynamic-import)
+14. [최적화 - externals](#externals)
 
 <br />
 
@@ -332,3 +336,290 @@ module.exports = {
 <br />
 
 ### optimization 최적화
+
+- 빌드 과정을 커스터마이징 할 수 잇는 여지를 제공하는데 그것이 바로 `optimization` 속성이다.
+- `HtmlWebpackPlugin`이 HTML 파일을 압축한 것처럼 css 파일도 빈칸을 없애는 압축을 할 수 있다. 그러한 기능을 `css-minimizer-webpack-plugin`이 제공한다.
+- webpack v4에서는 `optimize-css-assets-webpack-plugin`을 사용했지만 v5부터는 `css-minimizer-webpack-plugin`을 사용한다는 것을 참고하자
+- `css-minimizer-webpack-plugin`은 `optimize-css-assets-webpack-plugin`와 기능은 거의 유사하지만 쿼리 문자열을 사용하는 소스 맵 및 assets에서 더 정확하고, 캐싱을 허용하고, 병렬 모드에서 작동한다.
+
+```
+설치
+yarn add -D css-minimizer-webpack-plugin
+```
+
+- 그리고 webpack.config.js에서 optimization.minimizer를 추가한다.
+
+```js
+// ...
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.(scss|css)$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
+      // loader
+    ],
+  },
+  optimization: {
+    minimizer: [new CssMinimizerPlugin()],
+  },
+  plugins: [
+    // Plugins
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+    }),
+  ],
+  // devServer
+};
+```
+
+- 위에처럼 설정하면 production 모드에서만 CSS가 최적화가 활성화된다.
+- 만약 development 모드에서도 활성화하려면 `optimization.minimize` 값을 true를 주면 된다.
+
+```js
+module.exports = {
+  optimization: {
+    minimizer: [new CssMinimizerPlugin()],
+    minimize: true, // development 모드에서도 최적화 시키기
+  },
+};
+```
+
+- 이제 빌드를 시도해보면 css 파일들도 난독화 된 것을 확인할 수 있다.
+
+<br />
+
+### TerserWebpackPlugin
+
+- `TerserWebpackPlugin`은 자바스크립트 코드를 난독화하고 `debugger`구문을 제공하는 기능을 제공한다.
+- 또한, 기본 설정 외에도 `console.log`를 제거하는 옵션도 존재한다. 배포 버전에는 로그를 감추는 것이 좋을 수 있기 때문에 충분히 고려할만한 옵션이다.
+- 참고로 `TerserWebpackPlugin`은 webpack5에서도 제공하고 있다.
+
+```
+설치
+yarn add -D terser-webpack-plugin
+```
+
+```js
+// webpack.config.js
+const TerserPlugin = require("terser-webpack-plugin");
+
+module.exports = {
+  optimization: {
+    // minimize: true,
+    minimizer: [
+      new CssMinimizerPlugin(),
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true, // prod모드에서 콘솔 로그를 제거한다
+          },
+        },
+      }),
+    ],
+  },
+};
+```
+
+- optimization.minimizer에다 `new TerserPlugin`을 추가한다. 그리고 `terserOptions`와 `compress`에 `drop_console: true` 속성을 주면 prod모드에서 콘솔 로그를 제거할 수 있다.
+
+<br />
+
+### 코드스플리팅 entry
+
+- html,js,css 코드를 압축하는 것 외에도 아예 결과물을 여러개로 쪼개면 좀 더 브라우저 다운로드 속도를 높일 수 있다.
+- 큰 파일 하나를 다운로드 하는것 보다 작은 파일 여러개를 동시에 다운로드하는 것이 더 빠르기 때문이다.
+- 이러한 방법 중 가장 단순한 것은 엔트리를 여러개로 분리하는 것이다.
+
+```js
+// webpack.config.js
+module.exports = {
+  entry: {
+    main: "./src/app.js",
+    result: "./src/result.js",
+  },
+};
+```
+
+- 위에처럼 webpack.config.js의 entry에 result를 추가하고 빌드를 해보면 main.js 뿐만아니라 `result.js`가 추가된 것을 확인할 수 있다.
+- 또한 번들된 html을 보면 script태그로 result.js도 추가된 것을 확인할 수 있다.
+- 하지만 아직 단점이 존재하는데 중복되는 코드가 존재한다는 것이다. 중복을 제거하는 옵션도 추가해줘야한다. 이러한 기능을 제공하는 것이 `splitChunks`옵션이다.
+
+```js
+// webpack.config.js
+module.exports = {
+  optimization: {
+    // minimize: true,
+    minimizer: [
+      new CssMinimizerPlugin(),
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true, // prod모드에서 콘솔 로그를 제거한다
+          },
+        },
+      }),
+    ],
+    splitChunks: {
+      chunks: "all",
+    },
+  },
+};
+```
+
+- `splitChunks.chunks`는 최적화를 위해 선택될 청크들을 나타낸다. `all`, `async`, `initial` 옵션을 문자열로 제공할 수 있다.
+- `all`은 `비동기 청크와 비동기 청크 간에도 청크를 공유`할 수 있음을 의미하므로 강력한 옵션이다.
+- 이게 무슨말이냐면 현재 result.js와 main.js에 겹치는 부분이 있다고 했는데 그 부분인 axios 관련 코드이다. 이런 비동기 코드 중복을 제거해줄 수 있다.
+- 실제로 production모드로 실행하면 result, main.js와 추가적으로 `595.js`파일이 하나 생성된다.
+- result와 main에 axios를 검색해보면 나오지않고 595.js에 axios가 포함된 것을 확인할 수 있다.
+
+<br />
+
+### 코드스플리팅 Dynamic Import
+
+- entry 포인트를 수정해서 코드 스플리팅을 구현할 수 있지만 이는 개발자가 하나하나 수정해줘야되기 때문에 손이 많이간다.
+- 이런걸 자동화 시켜주는 기능이 있는데 이를 `Dynamic Import`라고 한다.
+
+```js
+// app.js
+// import result from './result';
+
+document.addEventListener("DOMContentLoaded", async () => {
+  formEl = document.createElement("div");
+  formEl.innerHTML = form.render();
+  document.body.appendChild(formEl);
+
+  // Dynamic Import
+  import(/* webpackChunkName: "result" */ "./result").then(
+    async ({ default: result }) => {
+      resultEl = document.createElement("div");
+      resultEl.innerHTML = await result.render();
+      document.body.appendChild(resultEl);
+    }
+  );
+});
+```
+
+- app.js에서 기존에 import하던 result를 주석처리 하고 밑에 `Dynamic import` 코드를 추가해보자.
+- 여기서 주의할 점은 주석으로 `/* webpackChunkName: "result" */`와 같이 추가했다.
+
+```js
+module.exports = {
+  mode,
+  entry: {
+    main: "./src/app.js",
+  },
+  output: {
+    path: path.resolve("./dist"), // 노드의 절대 경로
+    filename: "[name].js",
+    chunkFilename: "[name].chunk.js", // 청크 파일 이름 구성
+  },
+};
+```
+
+- 그리고 webpack.config.js에서 `output.chunkFilename`을 추가해줬는데 이는 청크파일 이름 구성을 할 수 있는 옵션이다.
+- 기본 설정인 `[id]`는 청크 순서대로 0,1,2,3을 부여한다. 참고로 청크란 하나의 덩아리라는 뜻으로, 코드 스플리팅 시 생성되는 자바스크립트 파일 조각을 의미한다.
+
+<br />
+
+### externals
+
+- 조금만 생각하면 좋은게 axios와 같은 써드파티 라이브러리는 이미 패키지로 제공 될 때 빌드 과정을 거치기 때문에 빌드 프로세스에서 제외하는 것이 좋다.
+- 웹팩 설정에서 이러한 기능을 `externals`로 제공한다.
+
+```js
+// webpack.config.js
+module.exports = {
+  externals: {
+    axios: "axios",
+  },
+};
+```
+
+- 위와 같이 webpack.config.js에다 `externals`를 추가하면 코드에서 axios를 사용하더라도 번들에 포함하지 않고 빌드한다. 대신 이를 전역 변수로 접근하도록 키로 설정한 `axios`가 그 이름이다.
+- axios는 이미 `node_modules`에 위치해 있기 때문에 이를 웹팩 아웃풋 폴더(/dist)에 옮기고 `index.html`에서 로딩해야한다.
+- 이때 파일을 복사하는 `CopyWebpackPlugin` 플러그인을 이용할 수 있다.
+
+```
+설치
+yarn add -D copy-webpack-plugin
+```
+
+```js
+// webpack.config.js
+const CopyPlugin = require("copy-webpack-plugin");
+
+module.exports = {
+  externals: {
+    axios: "axios",
+  },
+  plugins: [
+    // plugins
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "./node_modules/axios/dist/axios.min.js",
+          to: "./axios.min.js",
+        },
+      ],
+    }),
+  ],
+};
+```
+
+- 위에처럼 webpack.config.js에다 `CopyPlugin`을 추가한다. `from`은 파일을 복사하는 경로이다. `to`는 출력 경로이다.
+
+```html
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <!-- meta -->
+    <script type="text/javascript" src="axios.min.js" defer></script>
+    <title>타이틀<%= env %></title>
+  </head>
+  <body>
+    <!-- 이것은 주석입니다. -->
+  </body>
+</html>
+```
+
+- 추가적으로 `index.html`파일에다 script태그로 `axios.min.js`를 로딩하는 코드를 추가해야 한다.
+
+<br />
+
+- 사실 이런 externals와 같은 최적화는 개발 초기에는 잘 하지 않는다. 나중에 배포 직전에 번들 크기가 너무 커졌을 때 번들 크기를 줄이기위해 사용하는 방법이다. 하지만 기본적인 방법은 숙지하고 있으면 좋다.
+- 그리고 `CopyWebpackPlugin`은 `이미지`, `파비콘` 같은 정적 파일을 하나의 디렉토리에 넣어서 빌드할 때도 자주 사용한다.
+
+```js
+// webpack.config.js
+const CopyPlugin = require("copy-webpack-plugin");
+
+module.exports = {
+  externals: {
+    axios: "axios",
+  },
+  plugins: [
+    // plugins
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "./node_modules/axios/dist/axios.min.js",
+          to: "./axios.min.js",
+        },
+        {
+          from: "./src/assets",
+          to: "./assets",
+        },
+      ],
+    }),
+  ],
+};
+```
+
+<br />

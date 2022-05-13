@@ -10,13 +10,14 @@
 6. [자동으로 수정할 수 있는 규칙](#자동으로-수정할-수-있는-규칙)
 7. [Extensible Config(recommended, airbnb, standard)](#extensible-config)
 8. [ESLint 설정 초기화 --init](#초기화)
-9. [Prettier의 배경](#prettier-배경)
-10. [Prettier 설치 및 사용법](#prettier-설치-및-사용법)
-11. [Prettier 포맷팅](#포맷팅)
-12. [ESLint Prettier 통합 방법 - eslint-config-prettier](#eslint-config-prettier)
-13. [ESLint Prettier 통합 방법 - eslint-plugin-prettier](#eslint-plugin-prettier)
-14. [eslint-plugin-prettier와 eslint-config-prettier 통합](#eslint-plugin-prettier와-eslint-config-prettier-통합)
-15. [.prettier 파일 적용하기](#prettier-파일-적용)
+9. [ESLint 설정 eslint-webpack-plugin](#eslint-webpack-plugin)
+10. [Prettier의 배경](#prettier-배경)
+11. [Prettier 설치 및 사용법](#prettier-설치-및-사용법)
+12. [Prettier 포맷팅](#포맷팅)
+13. [ESLint Prettier 통합 방법 - eslint-config-prettier](#eslint-config-prettier)
+14. [ESLint Prettier 통합 방법 - eslint-plugin-prettier](#eslint-plugin-prettier)
+15. [eslint-plugin-prettier와 eslint-config-prettier 통합](#eslint-plugin-prettier와-eslint-config-prettier-통합)
+16. [.prettier 파일 적용하기](#prettier-파일-적용)
 
 <br />
 
@@ -231,6 +232,31 @@ module.exports = {
     "lint": "eslint src --fix" // --fix는 자동으로 코드 수정시켜주는 옵션
   }
 }
+```
+
+<br />
+
+### eslint webpack plugin
+
+- webpack v5에서만 작동하는 `eslint-webpack-plugin`이 있다. 이 플러그인은 `eslint`를 사용하여 javascript 코드의 문제를 찾고 수정한다.
+- 웹팩 Eslint 공식 홈페이지에서는 loader로 인한 eslint는 사용하지 말고 plugin을 통해 사용하라고 권한다.
+
+```설치
+yarn add -D eslint-webpack-plugin
+```
+
+```js
+// webpack.config.js
+const ESLintPlugin = require("eslint-webpack-plugin");
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new ESLintPlugin(options),
+  ],
+  // ...
+};
 ```
 
 <br />

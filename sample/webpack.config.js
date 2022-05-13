@@ -7,6 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const mode = process.env.NODE_ENV || 'development'; // 기본값 development
 module.exports = {
@@ -114,6 +115,7 @@ module.exports = {
         },
       ],
     }),
+    new ESLintPlugin(),
   ],
   devServer: {
     static: false,

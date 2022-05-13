@@ -19,9 +19,10 @@
 15. [커스텀 플러그인 만들기](#커스텀-플러그인-만들기)
 16. [자주 사용하는 플러그인 - BannerPlugin](#bannerplugin)
 17. [자주 사용하는 플러그인 - DefinePlugin](#defineplugin)
-18. [자주 사용하는 플러그인 - HtmlTemplatePlugin](#htmltemplateplugin)
-19. [자주 사용하는 플러그인 - CleanWebpackPlugin](#cleanwebpackplugin)
-20. [자주 사용하는 플러그인 - MiniCssExtractPlugin](#minicssextractplugin)
+18. [자주 사용하는 플러그인 - EnvironmentPlugin](#EnvironmentPlugin)
+19. [자주 사용하는 플러그인 - HtmlTemplatePlugin](#htmltemplateplugin)
+20. [자주 사용하는 플러그인 - CleanWebpackPlugin](#cleanwebpackplugin)
+21. [자주 사용하는 플러그인 - MiniCssExtractPlugin](#minicssextractplugin)
 
 <br />
 
@@ -700,6 +701,83 @@ console.log(api.domain); // http://dev.api.domain.com
 - 웹팩 설정의 `mode`에 설정한 값이 여기에 들어 있다. `development`를 설정했기 때문에 어플리케이션 코드에서 process.env.NODE_ENV로 접근하면 `development` 값을 얻을 수 있다.
 - 그 외에 직접 환경 변수를 넣고 싶다면 객체에 `프로퍼티`를 추가하면 된다. 기본적으로 코드가 등록된다. 예를 들어 `EXAMPLE: 1+1`을 넣고 EXAMPLE을 확인해보면 `2`가 출력된다.
 - 만약 코드가 아닌 값을 넣고 싶다면 `JSON.stringify()`로 한번 더 문자열하면 된다. 또한, 객체 형식으로 넣으면 객체 프로퍼티 접근(.)하는 것처럼 사용할 수 있다.
+
+<br />
+
+### EnvironmentPlugin
+
+- `EnvironmentPlugin`을 이용해 process.env 키에 DefinePlugin을 간단히 적용할 수 있다.
+- `EnvironmentPlugin`은 키로 구성된 배열 혹은 키에 기본값이 매핑된 객체를 받는다.
+
+```js
+//webpack.config.js
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'DEBUG']);
+
+  ],
+};
+```
+
+- 위 예제는 아래의 `DefinePlugin` 적용한 것과 같은 결과를 가져온다.
+- `DefinePlugin`과 달리 `EnvironmentPlugin`에는 기본값에 자동으로 `JSON.stringify`가 적용된다.
+
+```js
+//webpack.config.js
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.DEBUG': JSON.stringify(process.env.DEBUG),
+    });
+  ],
+};
+```
+
+- 실제 예제에서 사용할 때는 `.env` 파일에 환경 변수를 설정하고 사용한다.
+
+```
+1. 설치
+yarn add dotenv
+
+2. .env 파일 셋팅
+
+NODE_ENV=production
+REACT_APP_EXAMPLE=example   // REACT_APP_변수는 예약어이다. React 에서만 인식한다.
+```
+
+```js
+require('dotenv').config({ path: './.env' })
+//webpack.config.js
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new webpack.DefinePlugin({
+      ...process.env
+    });
+  ],
+};
+```
+
+- `EnvironmentPlugin`에는 기본값을 제공한다. process.env에 정의되지 않은 경우에는 기본값을 사용합니다.
+
+```js
+//webpack.config.js
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new webpack.DefinePlugin({
+      NODE_ENV: "development" // process.env.NODE_ENV가 정의되지 않은 경우 'development'를 기본값으로 사용
+    });
+  ],
+};
+```
 
 <br />
 

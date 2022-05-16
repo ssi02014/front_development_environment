@@ -12,6 +12,12 @@
 
 <br />
 
+## 👀 React v18 + webpack v5 + babel + eslint + prettier 실습 저장소
+
+- [React v18 + webpack v5 + babel + eslint + prettier 보일러 플레이트](https://github.com/ssi02014/React_Init_Boilerplate)
+
+<br />
+
 ## 👀 참고 사이트
 
 - [📖 김정환님 블로그](https://jeonghwan-kim.github.io/series/2019/12/09/frontend-dev-env-npm.html)

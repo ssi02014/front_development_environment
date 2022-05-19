@@ -4,11 +4,27 @@
 
 ## ✅ README 정리
 
-1. [NPM](https://github.com/ssi02014/front_development_environment/tree/master/npm)
-2. [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic)
-3. [웹팩(Webpack) - 심화편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-deep)
-4. [바벨(Babel)](https://github.com/ssi02014/front_development_environment/tree/master/babel)
-5. [ESlint, Prettier](https://github.com/ssi02014/front_development_environment/tree/master/eslint-prettier)
+- [NPM](https://github.com/ssi02014/front_development_environment/tree/master/npm)
+- [웹팩(Webpack) - 기본편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-basic)
+  - Loader
+    1. css-loader
+    2. style-loader
+    3. file-loader (webpack5 이후 assets로 대체)
+    4. url-loader (webpack5 이후 assets로 대체)
+    5. asset-modules
+       <br />
+  - Plugin
+    1. BannerPlugin
+    2. DefinePlugin
+    3. EnvironmentPlugin
+    4. HtmlTemplatePlugin
+    5. CleanWebpackPlugin
+    6. MiniCssExtractPlugin
+- [웹팩(Webpack) - 심화편](https://github.com/ssi02014/front_development_environment/tree/master/webpack-deep)
+  - webpack-dev-server
+  - HMR
+- [바벨(Babel)](https://github.com/ssi02014/front_development_environment/tree/master/babel)
+- [ESlint, Prettier](https://github.com/ssi02014/front_development_environment/tree/master/eslint-prettier)
 
 <br />
 
